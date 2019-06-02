@@ -1,0 +1,29 @@
+// {type:class}
+// {direction:topDown}
+// {generate:true}
+
+[Game]++1-1[Map|height;width;seed|generate()|update()]
+[Map]++*-1[Cell|height;biome;resourceType;resourceQuantity|temperature;humidiy;coverage;precipitation;wind;pollution;radiation;fertility|owner;settlement;population]
+
+[Game]++*-1[Country]
+[Country]+*-[Nation]
+
+
+[Nation]++1-1[Government]
+[Government]-[NationalLeader]
+[Character]^[NationalLeader]
+
+[Nation]+*-[Province]
+[Province]-[ProvincialLeader]
+[Character]^[ProvincialLeader]
+
+[Cell]++0..1-[PopulationGroup]
+[Cell]++0..1-1[Settlement]
+
+[Settlement]-[MunicipalLeader]
+[Character]^[MunicipalLeader]
+
+[Government]^[AbsoluteMonarchy]
+[Government]^[ElectiveMonarchy]
+[Government]^[ConstitutionalMonarchy]
+[Government]^[ElectiveTheocracy]
