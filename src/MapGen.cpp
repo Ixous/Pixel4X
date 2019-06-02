@@ -2,6 +2,8 @@
 
 #include <cstdlib>
 #include <cmath>
+#include <iostream>
+#include <random>
 
 #define PI 3.14159265358979323846
 
@@ -69,5 +71,43 @@ void Map::genHeightMap() {
                 cells[xxx][yyy].height += MOUNTAINS_MULTIPLIER*slope*noise*mask;
             }
         }
+    }
+}
+
+void Map::markCoast() {
+    for (unsigned short xxx = 1; xxx < width-1; xxx++) {
+        for (unsigned short yyy = 1; yyy < height-1; yyy++) {
+            if (cells[xxx][yyy].height>=0 && (   cells[xxx-1][yyy].height<0 
+                                              || cells[xxx][yyy-1].height<0
+                                              || cells[xxx+1][yyy].height<0
+                                              || cells[xxx][yyy+1].height<0))
+                coast.push_back(&cells[xxx][yyy]);
+        }
+    }
+}
+
+void Map::genRivers() {
+    std::random_device dev;
+    std::mt19937 rng(dev());
+    std::uniform_int_distribution<std::mt19937::result_type> dist(1,coast.size());
+    int nbr_rivers = 0;
+    while (nbr_rivers < 100) {
+        Cell* river_seed = coast[dist(rng)];
+        spreadRiver(river_seed->x, river_seed->y);
+        nbr_rivers++;
+    }
+}
+
+void Map::spreadRiver(unsigned short x, unsigned short y) {
+    unsigned short dirx = x+1, diry=y;
+    if (cells[x-1][y].height > cells[dirx][diry].height) { dirx=x-1; diry=y; }
+    if (cells[x][y-1].height > cells[dirx][diry].height) { dirx=x; diry=y-1; }
+    if (cells[x][y+1].height > cells[dirx][diry].height) { dirx=x; diry=y+1; }
+    if (cells[dirx][diry].height >= cells[x][y].height && rand()%50!=0) {
+        cells[x][y].height = -1;
+        mapimage.setPixel(x, y, sf::Color::Green);    
+        maptexture.loadFromImage(mapimage);
+        mapsprite.setTexture(maptexture);    
+        spreadRiver(dirx,diry);
     }
 }

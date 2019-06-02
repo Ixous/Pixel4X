@@ -15,7 +15,9 @@ Game::~Game() {
 
 void Game::gameloop() {
     map.genHeightMap();
+    map.markCoast();
     map.selectHeightMap();
+    map.genRivers();
 
     while (window.isOpen()) {
         sf::Event event;

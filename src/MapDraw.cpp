@@ -19,6 +19,9 @@ void Map::selectHeightMap() {
             mapimage.setPixel(xxx,yyy, color);
         }
     }
+    for (auto coastcell : coast) {
+        // mapimage.setPixel(coastcell->x, coastcell->y, sf::Color::Red);
+    }
     maptexture.loadFromImage(mapimage);
     mapsprite.setTexture(maptexture);
 }

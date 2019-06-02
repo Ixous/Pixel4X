@@ -19,6 +19,8 @@ public:
     int seed;
     void genHeightMap();
     void markCoast();
+    void genRivers();
+    void spreadRiver(unsigned short x, unsigned short y);
 
     sf::Image mapimage;
     sf::Texture maptexture;
