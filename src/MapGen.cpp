@@ -6,6 +6,7 @@
 #include <random>
 #include <deque>
 #include <vector>
+#include <algorithm>
 
 #define PI 3.14159265358979323846
 
@@ -161,9 +162,22 @@ void Map::genRivers() {
     int nbr_rivers = 0;
     while (nbr_rivers < 20) {
         Cell* river_seed = coast[dist(rng)];
-        spreadRiver(river_seed->x, river_seed->y);
-        nbr_rivers++;
+        if (river_seed->continentSize>200) {
+            // spreadRiver(river_seed->x, river_seed->y);
+            unsigned short x = river_seed->x;
+            unsigned short y = river_seed->y;
+            short inertia_x = 0;
+            short inertia_y = 0;
+            if (cells[x+1][y].height>=0) inertia_x += 150;
+            if (cells[x-1][y].height>=0) inertia_x -= 150;
+            if (cells[x][y+1].height>=0) inertia_y += 150;
+            if (cells[x][y-1].height>=0) inertia_y -= 150;
+            spreadRiver2(x,y,inertia_x,inertia_y);
+            nbr_rivers++;
+        }
     }
+    maptexture.loadFromImage(mapimage);
+    mapsprite.setTexture(maptexture);
 }
 
 void Map::spreadRiver(unsigned short x, unsigned short y) {
@@ -173,9 +187,41 @@ void Map::spreadRiver(unsigned short x, unsigned short y) {
     if (cells[x-1][y].height > cells[dirx][diry].height) { dirx=x-1; diry=y; }
     if (cells[dirx][diry].height >= cells[x][y].height && rand()%500!=0) {
         cells[x][y].height = -1;
-        mapimage.setPixel(x, y, sf::Color::Green);    
+        mapimage.setPixel(x, y, sf::Color::Green);
         maptexture.loadFromImage(mapimage);
-        mapsprite.setTexture(maptexture);    
+        mapsprite.setTexture(maptexture);
         spreadRiver(dirx,diry);
+    }
+}
+
+
+void Map::spreadRiver2(unsigned short x, unsigned short y, short inertia_x, short inertia_y) {
+    if (x >= 1 && x<width-1 && y>=1 && y<height-1 && cells[x][y].height>=0) {
+        cells[x][y].height = -1;
+        mapimage.setPixel(x, y, sf::Color::Green);
+        if (fabs(inertia_x)<1 && fabs(inertia_y)<1) return;
+        if (rand()%(int(sqrt(inertia_x*inertia_x + inertia_y*inertia_y)))==0) return;
+        unsigned short next_x = x;
+        unsigned short next_y = y;
+        short next_inertia_x = inertia_x;
+        short next_inertia_y = inertia_y;
+        if (rand()%int(fabs(std::max(int(inertia_x),1))) >= rand()%int(fabs(std::max(int(inertia_y),1)))) {
+            if (inertia_x>0) next_x+=1;
+            else if (inertia_x<0) next_x-=1;
+        } else {
+            if (inertia_y>0) next_y+=1;
+            else if (inertia_y<0) next_y-=1;
+        }
+        if (next_inertia_x>0) next_inertia_x-=10;
+        else if (next_inertia_x<0) next_inertia_x+=10;
+        if (next_inertia_y>0) next_inertia_y-=10;
+        else if (next_inertia_y<0) next_inertia_y+=10;
+        auto diffDistx = cells[x+1][y].distanceToCoast - cells[x-1][y].distanceToCoast;
+        if (diffDistx>0) next_inertia_x+=diffDistx*7;
+        if (diffDistx<0) next_inertia_x+=diffDistx*7;
+        auto diffDisty = cells[x][y+1].distanceToCoast - cells[x][y-1].distanceToCoast;
+        if (diffDisty>0) next_inertia_y+=diffDisty*7;
+        if (diffDisty<0) next_inertia_y+=diffDisty*7;
+        spreadRiver2(next_x,next_y,next_inertia_x,next_inertia_y);
     }
 }

@@ -26,6 +26,7 @@ public:
 
     void genRivers();
     void spreadRiver(unsigned short x, unsigned short y);
+    void spreadRiver2(unsigned short x, unsigned short y, short inertia_x, short inertia_y);
 
     sf::Image mapimage;
     sf::Texture maptexture;
