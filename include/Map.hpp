@@ -23,7 +23,7 @@ public:
     void calcDistanceToCoast();
     void calcDistanceToCoast_iter(std::vector<Cell*> layer, unsigned short distance);
     void calcContinentSize();
-    
+
     void genRivers();
     void spreadRiver(unsigned short x, unsigned short y);
 
@@ -33,4 +33,5 @@ public:
     void draw(sf::RenderWindow*);
     void selectHeightMap();
     void selectDistanceToCoastMap();
+    void selectContinentSizeMap();
 };

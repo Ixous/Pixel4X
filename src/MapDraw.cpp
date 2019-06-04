@@ -37,3 +37,18 @@ void Map::selectDistanceToCoastMap() {
     maptexture.loadFromImage(mapimage);
     mapsprite.setTexture(maptexture);
 }
+
+void Map::selectContinentSizeMap() {
+    mapimage.create(width,height);
+    for (size_t xxx = 0; xxx < width; xxx++) {
+        for (size_t yyy = 0; yyy < height; yyy++) {
+            sf::Color color;
+            auto continentSize = cells[xxx][yyy].continentSize;
+            color = sf::Color{0,(sf::Uint8)(255*continentSize/32000.0f),0,255};
+            if (cells[xxx][yyy].height<0) color = sf::Color{0,0,(sf::Uint8)(255*continentSize/65000.0f), 255};
+            mapimage.setPixel(xxx,yyy, color);
+        }
+    }
+    maptexture.loadFromImage(mapimage);
+    mapsprite.setTexture(maptexture);
+}

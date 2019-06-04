@@ -4,6 +4,8 @@
 #include <cmath>
 #include <iostream>
 #include <random>
+#include <deque>
+#include <vector>
 
 #define PI 3.14159265358979323846
 
@@ -83,17 +85,61 @@ void Map::calcDistanceToCoast_iter(std::vector<Cell*> layer, unsigned short dist
         unsigned short xxx = layercell->x;
         unsigned short yyy = layercell->y;
         if (xxx>=1 && xxx<width-1 && yyy>=1 && yyy<height-1) {
-            if (cells[xxx-1][yyy].distanceToCoast==32000 && cells[xxx-1][yyy].height>0) {cells[xxx-1][yyy].distanceToCoast=distance; nextlayer.push_back(&cells[xxx-1][yyy]);}
-            if (cells[xxx][yyy-1].distanceToCoast==32000 && cells[xxx][yyy-1].height>0) {cells[xxx][yyy-1].distanceToCoast=distance; nextlayer.push_back(&cells[xxx][yyy-1]);}
-            if (cells[xxx+1][yyy].distanceToCoast==32000 && cells[xxx+1][yyy].height>0) {cells[xxx+1][yyy].distanceToCoast=distance; nextlayer.push_back(&cells[xxx+1][yyy]);}
-            if (cells[xxx][yyy+1].distanceToCoast==32000 && cells[xxx][yyy+1].height>0) {cells[xxx][yyy+1].distanceToCoast=distance; nextlayer.push_back(&cells[xxx][yyy+1]);}
+            if (cells[xxx-1][yyy].distanceToCoast==65535 && cells[xxx-1][yyy].height>0) {cells[xxx-1][yyy].distanceToCoast=distance; nextlayer.push_back(&cells[xxx-1][yyy]);}
+            if (cells[xxx][yyy-1].distanceToCoast==65535 && cells[xxx][yyy-1].height>0) {cells[xxx][yyy-1].distanceToCoast=distance; nextlayer.push_back(&cells[xxx][yyy-1]);}
+            if (cells[xxx+1][yyy].distanceToCoast==65535 && cells[xxx+1][yyy].height>0) {cells[xxx+1][yyy].distanceToCoast=distance; nextlayer.push_back(&cells[xxx+1][yyy]);}
+            if (cells[xxx][yyy+1].distanceToCoast==65535 && cells[xxx][yyy+1].height>0) {cells[xxx][yyy+1].distanceToCoast=distance; nextlayer.push_back(&cells[xxx][yyy+1]);}
         }
     }
     if (nextlayer.size()!=0) calcDistanceToCoast_iter(nextlayer, distance+1);
 }
 
 void Map::calcContinentSize() {
-    
+    std::deque<Cell*> queue;
+    std::vector<Cell*> continent;
+    for (unsigned short xxx = 1; xxx < width-1; xxx++) {
+        for (unsigned short yyy = 1; yyy < height-1; yyy++) {
+            if (cells[xxx][yyy].continentSize==65535) {
+                bool land = cells[xxx][yyy].height>=0;
+                queue.push_back(&cells[xxx][yyy]);
+                continent.push_back(&cells[xxx][yyy]);
+                cells[xxx][yyy].continentSize = 0;
+                while (!queue.empty()) {
+                    unsigned short txxx = queue.back()->x;
+                    unsigned short tyyy = queue.back()->y;
+                    queue.pop_back();
+                    if (txxx >= 1 && txxx<width-1 && tyyy>=1 && tyyy<height-1) {
+                        if (cells[txxx-1][tyyy].continentSize==65535 && ((land && cells[txxx-1][tyyy].height>=0) || (!land && cells[txxx-1][tyyy].height<0))) {
+                            cells[txxx-1][tyyy].continentSize=0;
+                            queue.push_back(&cells[txxx-1][tyyy]);
+                            continent.push_back(&cells[txxx-1][tyyy]);
+                        }
+                        if (cells[txxx][tyyy-1].continentSize==65535 && ((land && cells[txxx][tyyy-1].height>=0) || (!land && cells[txxx][tyyy-1].height<0))) {
+                            cells[txxx][tyyy-1].continentSize=0;
+                            queue.push_back(&cells[txxx][tyyy-1]);
+                            continent.push_back(&cells[txxx][tyyy-1]);
+                        }
+                        if (cells[txxx+1][tyyy].continentSize==65535 && ((land && cells[txxx+1][tyyy].height>=0) || (!land && cells[txxx+1][tyyy].height<0))) {
+                            cells[txxx+1][tyyy].continentSize=0;
+                            queue.push_back(&cells[txxx+1][tyyy]);
+                            continent.push_back(&cells[txxx+1][tyyy]);
+                        }
+                        if (cells[txxx][tyyy+1].continentSize==65535 && ((land && cells[txxx][tyyy+1].height>=0) || (!land && cells[txxx][tyyy+1].height<0))) {
+                            cells[txxx][tyyy+1].continentSize=0;
+                            queue.push_back(&cells[txxx][tyyy+1]);
+                            continent.push_back(&cells[txxx][tyyy+1]);
+                        }
+                    }
+                }
+                unsigned short continentSize = continent.size();
+                for (auto cell : continent) {
+                    cell->continentSize = continentSize;
+                }
+                queue.clear(); //should be useless
+                continent.clear();
+            }
+        }
+    }
 }
 
 void Map::markCoast() {

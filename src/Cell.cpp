@@ -1,7 +1,7 @@
 #include "Cell.hpp"
 
 Cell::Cell() :
-distanceToCoast(32000) , continentSize(0)
+distanceToCoast(65535) , continentSize(65535)
 {
 }
 

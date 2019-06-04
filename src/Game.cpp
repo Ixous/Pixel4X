@@ -18,9 +18,11 @@ void Game::gameloop() {
     map.markCoast();
 
     map.calcDistanceToCoast();
+    map.calcContinentSize();
     // map.selectDistanceToCoastMap();
-    map.selectHeightMap();
-    map.genRivers();
+    // map.selectHeightMap();
+    // map.genRivers();
+    map.selectContinentSizeMap();
 
     while (window.isOpen()) {
         sf::Event event;
