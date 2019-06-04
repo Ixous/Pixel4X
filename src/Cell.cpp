@@ -1,6 +1,7 @@
 #include "Cell.hpp"
 
-Cell::Cell()
+Cell::Cell() :
+distanceToCoast(32000) , continentSize(0)
 {
 }
 

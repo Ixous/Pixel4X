@@ -19,8 +19,20 @@ void Map::selectHeightMap() {
             mapimage.setPixel(xxx,yyy, color);
         }
     }
-    for (auto coastcell : coast) {
-        // mapimage.setPixel(coastcell->x, coastcell->y, sf::Color::Red);
+    maptexture.loadFromImage(mapimage);
+    mapsprite.setTexture(maptexture);
+}
+
+void Map::selectDistanceToCoastMap() {
+    mapimage.create(width,height);
+    for (size_t xxx = 0; xxx < width; xxx++) {
+        for (size_t yyy = 0; yyy < height; yyy++) {
+            sf::Color color;
+            auto distanceToCoast = cells[xxx][yyy].distanceToCoast;
+            auto something = (sf::Uint8)(2*distanceToCoast);            
+            color = sf::Color{something,0,0,255};
+            mapimage.setPixel(xxx,yyy, color);
+        }
     }
     maptexture.loadFromImage(mapimage);
     mapsprite.setTexture(maptexture);

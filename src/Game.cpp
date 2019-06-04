@@ -16,6 +16,9 @@ Game::~Game() {
 void Game::gameloop() {
     map.genHeightMap();
     map.markCoast();
+
+    map.calcDistanceToCoast();
+    // map.selectDistanceToCoastMap();
     map.selectHeightMap();
     map.genRivers();
 

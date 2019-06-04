@@ -8,4 +8,6 @@ public:
     ~Cell();
     unsigned short x,y;
     char height;
+    unsigned short distanceToCoast;
+    unsigned short continentSize;
 };

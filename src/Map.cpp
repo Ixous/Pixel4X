@@ -9,7 +9,6 @@ height(_height) , width(_width) , cells(_width,std::vector<Cell>(_height)) , see
             cells[xxx][yyy].y = yyy;
         }
     }
-    
 }
 
 Map::~Map() {

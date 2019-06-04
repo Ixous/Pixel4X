@@ -1,5 +1,5 @@
 CC		:= g++
-C_FLAGS := -std=c++17 -Wall -Wextra -Wno-narrowing
+C_FLAGS := -std=c++17 -Wall -Wextra -Wno-narrowing -g
 
 BIN		:= bin
 SRC		:= src

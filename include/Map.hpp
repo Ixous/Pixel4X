@@ -15,10 +15,15 @@ public:
 
     std::vector<std::vector<Cell>> cells;
     std::vector<Cell*> coast;
+    std::vector<std::vector<unsigned int>> distanceToCoast;
 
     int seed;
     void genHeightMap();
     void markCoast();
+    void calcDistanceToCoast();
+    void calcDistanceToCoast_iter(std::vector<Cell*> layer, unsigned short distance);
+    void calcContinentSize();
+    
     void genRivers();
     void spreadRiver(unsigned short x, unsigned short y);
 
@@ -27,4 +32,5 @@ public:
     sf::Sprite mapsprite;
     void draw(sf::RenderWindow*);
     void selectHeightMap();
+    void selectDistanceToCoastMap();
 };

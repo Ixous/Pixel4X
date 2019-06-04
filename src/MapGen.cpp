@@ -74,6 +74,28 @@ void Map::genHeightMap() {
     }
 }
 
+void Map::calcDistanceToCoast() {
+    calcDistanceToCoast_iter(coast, 0);
+}
+void Map::calcDistanceToCoast_iter(std::vector<Cell*> layer, unsigned short distance) {
+    std::vector<Cell*> nextlayer;
+    for (auto layercell : layer) {
+        unsigned short xxx = layercell->x;
+        unsigned short yyy = layercell->y;
+        if (xxx>=1 && xxx<width-1 && yyy>=1 && yyy<height-1) {
+            if (cells[xxx-1][yyy].distanceToCoast==32000 && cells[xxx-1][yyy].height>0) {cells[xxx-1][yyy].distanceToCoast=distance; nextlayer.push_back(&cells[xxx-1][yyy]);}
+            if (cells[xxx][yyy-1].distanceToCoast==32000 && cells[xxx][yyy-1].height>0) {cells[xxx][yyy-1].distanceToCoast=distance; nextlayer.push_back(&cells[xxx][yyy-1]);}
+            if (cells[xxx+1][yyy].distanceToCoast==32000 && cells[xxx+1][yyy].height>0) {cells[xxx+1][yyy].distanceToCoast=distance; nextlayer.push_back(&cells[xxx+1][yyy]);}
+            if (cells[xxx][yyy+1].distanceToCoast==32000 && cells[xxx][yyy+1].height>0) {cells[xxx][yyy+1].distanceToCoast=distance; nextlayer.push_back(&cells[xxx][yyy+1]);}
+        }
+    }
+    if (nextlayer.size()!=0) calcDistanceToCoast_iter(nextlayer, distance+1);
+}
+
+void Map::calcContinentSize() {
+    
+}
+
 void Map::markCoast() {
     for (unsigned short xxx = 1; xxx < width-1; xxx++) {
         for (unsigned short yyy = 1; yyy < height-1; yyy++) {
@@ -91,7 +113,7 @@ void Map::genRivers() {
     std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist(1,coast.size());
     int nbr_rivers = 0;
-    while (nbr_rivers < 100) {
+    while (nbr_rivers < 20) {
         Cell* river_seed = coast[dist(rng)];
         spreadRiver(river_seed->x, river_seed->y);
         nbr_rivers++;
@@ -100,10 +122,10 @@ void Map::genRivers() {
 
 void Map::spreadRiver(unsigned short x, unsigned short y) {
     unsigned short dirx = x+1, diry=y;
-    if (cells[x-1][y].height > cells[dirx][diry].height) { dirx=x-1; diry=y; }
     if (cells[x][y-1].height > cells[dirx][diry].height) { dirx=x; diry=y-1; }
     if (cells[x][y+1].height > cells[dirx][diry].height) { dirx=x; diry=y+1; }
-    if (cells[dirx][diry].height >= cells[x][y].height && rand()%50!=0) {
+    if (cells[x-1][y].height > cells[dirx][diry].height) { dirx=x-1; diry=y; }
+    if (cells[dirx][diry].height >= cells[x][y].height && rand()%500!=0) {
         cells[x][y].height = -1;
         mapimage.setPixel(x, y, sf::Color::Green);    
         maptexture.loadFromImage(mapimage);
