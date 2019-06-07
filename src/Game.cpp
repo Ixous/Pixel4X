@@ -6,7 +6,7 @@
 #include <SFML/Window.hpp>
 
 Game::Game() :
-window (sf::VideoMode(2048, 1024+512), "Pixel4X") , mapview(sf::FloatRect(0,0,1024,512+256)), map(1024,512+256, 1)
+game(this) , window (sf::VideoMode(2048, 1024+512), "Pixel4X") , mapview(sf::FloatRect(0,0,1024,512+256)), map(1024,512+256, 1)
 {
 }
 
@@ -14,17 +14,8 @@ Game::~Game() {
 }
 
 void Game::gameloop() {
-    map.genHeightMap();
-    map.markCoast();
-
-    map.calcDistanceToCoast();
-    map.calcContinentSize();
-    map.genRivers();
-    map.genTemperature();
-    map.genHumidity();
-    // map.selectHeightMap();
-    map.selectHumidityMap();
-    // map.selectTemperatureMap();
+    map.generate();
+    map.mapmode(Mapmode::HEIGHT);
 
     while (window.isOpen()) {
         sf::Event event;

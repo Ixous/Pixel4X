@@ -10,6 +10,7 @@ class Game {
 public:
     Game();
     ~Game();
+    Game* game;
 
     void gameloop();
 

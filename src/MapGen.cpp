@@ -144,10 +144,6 @@ void Map::calcContinentSize() {
     }
 }
 
-void Map::erode() {
-
-}
-
 void Map::markCoast() {
     for (unsigned short xxx = 1; xxx < width-1; xxx++) {
         for (unsigned short yyy = 1; yyy < height-1; yyy++) {
@@ -272,10 +268,10 @@ void Map::genHumidity() {
             auto temperature = cells[xxx][yyy].temperature;
             auto height = cells[xxx][yyy].height;
             auto humidity = 55 + 50.0f * atan((temperature-15.0f)/6.0f)/PI;
-            humidity -= exp(-continentSize/3000.0f) * (21 + 22*atan((temperature-18)/3)/PI) 
-                     - cells[xxx][yyy].river*5;
-                     - (cells[xxx][yyy].height>=0)*20;
-                     + 2*fmax(0,20-cells[xxx][yyy].distanceToCoast);
+            humidity += -exp(-continentSize/3000.0f) * (21 + 22*atan((temperature-18)/3)/PI) 
+                     + 2*fmax(0,20-cells[xxx][yyy].distanceToCoast)
+                     - cells[xxx][yyy].river*5
+                     - (height=0)*20;
             cells[xxx][yyy].humidity = humidity;
         }
     }

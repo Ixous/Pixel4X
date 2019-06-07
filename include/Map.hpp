@@ -5,26 +5,38 @@
 
 #include "Cell.hpp"
 
-class Map {
+enum class Mapmode {
+    HEIGHT, TEMPERATURE, HUMIDITY,
+    DEBUG_CONTINENTSIZE, DEBUG_DISTANCETOCOAST
+};
 
+class Map {
 public:
     Map(unsigned short _width, unsigned short _height, int _seed);
     ~Map();
+    Map* map;
 
+    unsigned short getHeight() {return height;}
+    unsigned short getWidth() {return width;}
+    Cell getCell(unsigned short xxx, unsigned short yyy) {return cells[xxx][yyy];}
+
+    void generate();
+    void update();
+    void mapmode(Mapmode _mapmode);
+    void draw(sf::RenderWindow*);
+
+private:
     unsigned short height, width;
+    int seed;
 
     std::vector<std::vector<Cell>> cells;
     std::vector<Cell*> coast;
-    std::vector<std::vector<unsigned int>> distanceToCoast;
 
-    int seed;
     void genHeightMap();
     void markCoast();
     void calcDistanceToCoast();
     void calcDistanceToCoast_iter(std::vector<Cell*> layer, unsigned short distance);
     void calcContinentSize();
-
-    void erode();
 
     void genRivers();
     void spreadRiver(unsigned short x, unsigned short y, short inertia_x, short inertia_y);
@@ -35,13 +47,11 @@ public:
     sf::Image mapimage;
     sf::Texture maptexture;
     sf::Sprite mapsprite;
-    void draw(sf::RenderWindow*);
     void selectHeightMap();
     void selectDistanceToCoastMap();
     void selectContinentSizeMap();
     void selectTemperatureMap();
     void selectHumidityMap();
-
 
     void updateHumidity();
 };
