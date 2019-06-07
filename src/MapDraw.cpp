@@ -34,6 +34,7 @@ void Map::selectDistanceToCoastMap() {
             mapimage.setPixel(xxx,yyy, color);
         }
     }
+    for (auto coastcell : coast) mapimage.setPixel(coastcell->x,coastcell->y,sf::Color::Blue);
     maptexture.loadFromImage(mapimage);
     mapsprite.setTexture(maptexture);
 }

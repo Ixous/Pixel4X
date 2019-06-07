@@ -78,7 +78,8 @@ void Map::genHeightMap() {
 }
 
 void Map::calcDistanceToCoast() {
-    calcDistanceToCoast_iter(coast, 0);
+    for (auto coastcell : coast) coastcell->distanceToCoast=0;
+    calcDistanceToCoast_iter(coast, 1);
 }
 void Map::calcDistanceToCoast_iter(std::vector<Cell*> layer, unsigned short distance) {
     std::vector<Cell*> nextlayer;
@@ -86,10 +87,10 @@ void Map::calcDistanceToCoast_iter(std::vector<Cell*> layer, unsigned short dist
         unsigned short xxx = layercell->x;
         unsigned short yyy = layercell->y;
         if (xxx>=1 && xxx<width-1 && yyy>=1 && yyy<height-1) {
-            if (cells[xxx-1][yyy].distanceToCoast==65535 && cells[xxx-1][yyy].height>0) {cells[xxx-1][yyy].distanceToCoast=distance; nextlayer.push_back(&cells[xxx-1][yyy]);}
-            if (cells[xxx][yyy-1].distanceToCoast==65535 && cells[xxx][yyy-1].height>0) {cells[xxx][yyy-1].distanceToCoast=distance; nextlayer.push_back(&cells[xxx][yyy-1]);}
-            if (cells[xxx+1][yyy].distanceToCoast==65535 && cells[xxx+1][yyy].height>0) {cells[xxx+1][yyy].distanceToCoast=distance; nextlayer.push_back(&cells[xxx+1][yyy]);}
-            if (cells[xxx][yyy+1].distanceToCoast==65535 && cells[xxx][yyy+1].height>0) {cells[xxx][yyy+1].distanceToCoast=distance; nextlayer.push_back(&cells[xxx][yyy+1]);}
+            if (cells[xxx-1][yyy].distanceToCoast==65535 && cells[xxx-1][yyy].height>=0) {cells[xxx-1][yyy].distanceToCoast=distance; nextlayer.push_back(&cells[xxx-1][yyy]);}
+            if (cells[xxx][yyy-1].distanceToCoast==65535 && cells[xxx][yyy-1].height>=0) {cells[xxx][yyy-1].distanceToCoast=distance; nextlayer.push_back(&cells[xxx][yyy-1]);}
+            if (cells[xxx+1][yyy].distanceToCoast==65535 && cells[xxx+1][yyy].height>=0) {cells[xxx+1][yyy].distanceToCoast=distance; nextlayer.push_back(&cells[xxx+1][yyy]);}
+            if (cells[xxx][yyy+1].distanceToCoast==65535 && cells[xxx][yyy+1].height>=0) {cells[xxx][yyy+1].distanceToCoast=distance; nextlayer.push_back(&cells[xxx][yyy+1]);}
         }
     }
     if (nextlayer.size()!=0) calcDistanceToCoast_iter(nextlayer, distance+1);
@@ -185,35 +186,17 @@ void Map::genRivers() {
             if (cells[x-2][y].height>=0) inertia_x -= 5;
             if (cells[x][y+2].height>=0) inertia_y += 5;
             if (cells[x][y-2].height>=0) inertia_y -= 5;
-            spreadRiver2(x,y,inertia_x,inertia_y);
+            spreadRiver(x,y,inertia_x,inertia_y);
             nbr_rivers++;
         }
     }
-    maptexture.loadFromImage(mapimage);
-    mapsprite.setTexture(maptexture);
 }
 
-void Map::spreadRiver(unsigned short x, unsigned short y) {
-    unsigned short dirx = x+1, diry=y;
-    if (cells[x][y-1].height > cells[dirx][diry].height) { dirx=x; diry=y-1; }
-    if (cells[x][y+1].height > cells[dirx][diry].height) { dirx=x; diry=y+1; }
-    if (cells[x-1][y].height > cells[dirx][diry].height) { dirx=x-1; diry=y; }
-    if (cells[dirx][diry].height >= cells[x][y].height && rand()%500!=0) {
-        cells[x][y].height = -1;
-        mapimage.setPixel(x, y, sf::Color::Green);
-        maptexture.loadFromImage(mapimage);
-        mapsprite.setTexture(maptexture);
-        spreadRiver(dirx,diry);
-    }
-}
-
-
-void Map::spreadRiver2(unsigned short x, unsigned short y, short inertia_x, short inertia_y) {
+void Map::spreadRiver(unsigned short x, unsigned short y, short inertia_x, short inertia_y) {
     if (x >= 1 && x<width-1 && y>=1 && y<height-1 && cells[x][y].height>=0) {
         cells[x][y].height = -1;
         cells[x][y].river = true;
         cells[x][y].continentSize = 0;
-        mapimage.setPixel(x, y, sf::Color::Green);
         if (fabs(inertia_x)<1 && fabs(inertia_y)<1) return;
         if (rand()%(int(sqrt(inertia_x*inertia_x + inertia_y*inertia_y)))==0) return;
         unsigned short next_x = x;
@@ -233,11 +216,11 @@ void Map::spreadRiver2(unsigned short x, unsigned short y, short inertia_x, shor
         else if (next_inertia_y<0) next_inertia_y+=10;
 
         auto diffDistx = cells[x+1][y].distanceToCoast - cells[x-1][y].distanceToCoast;
-        if (diffDistx>0) next_inertia_x+=diffDistx*5;
-        if (diffDistx<0) next_inertia_x+=diffDistx*5;
+        if (diffDistx>0) next_inertia_x+=diffDistx*10;
+        if (diffDistx<0) next_inertia_x+=diffDistx*10;
         auto diffDisty = cells[x][y+1].distanceToCoast - cells[x][y-1].distanceToCoast;
-        if (diffDisty>0) next_inertia_y+=diffDisty*5;
-        if (diffDisty<0) next_inertia_y+=diffDisty*5;
+        if (diffDisty>0) next_inertia_y+=diffDisty*10;
+        if (diffDisty<0) next_inertia_y+=diffDisty*10;
 
         auto diffHeightx = cells[x+1][y].height - cells[x-1][y].height;
         if (diffHeightx>0) next_inertia_x+=diffHeightx*5;
@@ -246,7 +229,7 @@ void Map::spreadRiver2(unsigned short x, unsigned short y, short inertia_x, shor
         if (diffHeighty>0) next_inertia_y+=diffHeighty*5;
         if (diffHeighty<0) next_inertia_y+=diffHeighty*5;
 
-        spreadRiver2(next_x,next_y,next_inertia_x,next_inertia_y);
+        spreadRiver(next_x,next_y,next_inertia_x,next_inertia_y);
     }
 }
 
@@ -288,14 +271,12 @@ void Map::genHumidity() {
             auto continentSize = cells[xxx][yyy].continentSize;
             auto temperature = cells[xxx][yyy].temperature;
             auto height = cells[xxx][yyy].height;
-            if (height < 0 && !cells[xxx][yyy].river) {
-                auto humidity = 55 + 50.0f * atan((temperature-15.0f)/6.0f)/PI; //dependence on temperature //see notes about atanJump...
-                humidity -= exp(-continentSize/3000.0f) * (21 + 22*atan((temperature-18)/3)/PI); //dependence on height zone size which itself also depends on temperature //see notes about expDecreaseFactor
-                cells[xxx][yyy].humidity = humidity;
-            }
-            else {
-                cells[xxx][yyy].humidity = 20 + (cells[xxx][yyy].river)*20;
-            }
+            auto humidity = 55 + 50.0f * atan((temperature-15.0f)/6.0f)/PI;
+            humidity -= exp(-continentSize/3000.0f) * (21 + 22*atan((temperature-18)/3)/PI) 
+                     - cells[xxx][yyy].river*5;
+                     - (cells[xxx][yyy].height>=0)*20;
+                     + 2*fmax(0,20-cells[xxx][yyy].distanceToCoast);
+            cells[xxx][yyy].humidity = humidity;
         }
     }
 }

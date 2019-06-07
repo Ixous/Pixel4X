@@ -19,17 +19,12 @@ void Game::gameloop() {
 
     map.calcDistanceToCoast();
     map.calcContinentSize();
-    map.selectHeightMap();
     map.genRivers();
     map.genTemperature();
     map.genHumidity();
-    for (size_t _ = 0; _ < 10; _++) {
-        map.updateHumidity();
-    }
+    // map.selectHeightMap();
     map.selectHumidityMap();
     // map.selectTemperatureMap();
-    // map.selectDistanceToCoastMap();
-    // map.selectContinentSizeMap();
 
     while (window.isOpen()) {
         sf::Event event;
