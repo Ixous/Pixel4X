@@ -10,4 +10,8 @@ public:
     char height;
     unsigned short distanceToCoast;
     unsigned short continentSize;
+    bool river;
+
+    char temperature;
+    unsigned char humidity;
 };

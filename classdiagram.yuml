@@ -2,28 +2,28 @@
 // {direction:topDown}
 // {generate:true}
 
-[Game]++1-1[Map|height;width;seed|generate()|update()]
-[Map]++*-1[Cell|height;biome;resourceType;resourceQuantity|temperature;humidiy;coverage;precipitation;wind;pollution;radiation;fertility|owner;settlement;population]
+[Game|gameloop()]++1-1[Map|height;width;seed|generate()|update()]
+[Map]++*-1[Cell|height;distanceToCoast;continentSize;biome;resourceType;resourceQuantity|temperature;humidiy;coverage;precipitation;wind;pollution;radiation;fertility|owner;settlement;population]
+[Cell]+*-1+[Nation]
+[Settlement]+1-*+[Nation]
 
 [Game]++*-1[Country]
 [Country]+*-[Nation]
 
-
 [Nation]++1-1[Government]
-[Government]-[NationalLeader]
-[Character]^[NationalLeader]
+[Government]+* members-[Character|name;age|roles]
 
 [Nation]+*-[Province]
-[Province]-[ProvincialLeader]
-[Character]^[ProvincialLeader]
+[Province]+* leaders-[Character]
+
+[Nation]+1-[Culture]
+[PopulationGroup|size;ageDistribution;class;salary;hapiness;...]+1-[Culture]
+[Character]+1-[Culture]
+[Culture]+* subcultures-[Culture]
 
 [Cell]++0..1-[PopulationGroup]
 [Cell]++0..1-1[Settlement]
 
-[Settlement]-[MunicipalLeader]
-[Character]^[MunicipalLeader]
+[Settlement]+* leaders-[Character]
+[Settlement]++*-[PopulationGroup]
 
-[Government]^[AbsoluteMonarchy]
-[Government]^[ElectiveMonarchy]
-[Government]^[ConstitutionalMonarchy]
-[Government]^[ElectiveTheocracy]

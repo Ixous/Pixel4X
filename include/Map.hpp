@@ -24,9 +24,14 @@ public:
     void calcDistanceToCoast_iter(std::vector<Cell*> layer, unsigned short distance);
     void calcContinentSize();
 
+    void erode();
+
     void genRivers();
     void spreadRiver(unsigned short x, unsigned short y);
     void spreadRiver2(unsigned short x, unsigned short y, short inertia_x, short inertia_y);
+
+    void genTemperature();
+    void genHumidity();
 
     sf::Image mapimage;
     sf::Texture maptexture;
@@ -35,4 +40,9 @@ public:
     void selectHeightMap();
     void selectDistanceToCoastMap();
     void selectContinentSizeMap();
+    void selectTemperatureMap();
+    void selectHumidityMap();
+
+
+    void updateHumidity();
 };

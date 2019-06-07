@@ -143,6 +143,10 @@ void Map::calcContinentSize() {
     }
 }
 
+void Map::erode() {
+
+}
+
 void Map::markCoast() {
     for (unsigned short xxx = 1; xxx < width-1; xxx++) {
         for (unsigned short yyy = 1; yyy < height-1; yyy++) {
@@ -162,16 +166,25 @@ void Map::genRivers() {
     int nbr_rivers = 0;
     while (nbr_rivers < 20) {
         Cell* river_seed = coast[dist(rng)];
-        if (river_seed->continentSize>200) {
-            // spreadRiver(river_seed->x, river_seed->y);
+        if (river_seed->continentSize>400 && river_seed->y>130 && river_seed->y<height-130) {
             unsigned short x = river_seed->x;
             unsigned short y = river_seed->y;
             short inertia_x = 0;
             short inertia_y = 0;
-            if (cells[x+1][y].height>=0) inertia_x += 150;
-            if (cells[x-1][y].height>=0) inertia_x -= 150;
-            if (cells[x][y+1].height>=0) inertia_y += 150;
-            if (cells[x][y-1].height>=0) inertia_y -= 150;
+            if (cells[x+1][y].height>=0) inertia_x += 40;
+            if (cells[x-1][y].height>=0) inertia_x -= 40;
+            if (cells[x][y+1].height>=0) inertia_y += 40;
+            if (cells[x][y-1].height>=0) inertia_y -= 40;
+
+            if (cells[x-1][y-1].height>=0) {inertia_x -= 15;inertia_y -= 15;}
+            if (cells[x+1][y-1].height>=0) {inertia_x += 15;inertia_y -= 15;}
+            if (cells[x+1][y+1].height>=0) {inertia_x += 15;inertia_y += 15;}
+            if (cells[x-1][y+1].height>=0) {inertia_x -= 15;inertia_y += 15;}
+            
+            if (cells[x+2][y].height>=0) inertia_x += 5;
+            if (cells[x-2][y].height>=0) inertia_x -= 5;
+            if (cells[x][y+2].height>=0) inertia_y += 5;
+            if (cells[x][y-2].height>=0) inertia_y -= 5;
             spreadRiver2(x,y,inertia_x,inertia_y);
             nbr_rivers++;
         }
@@ -198,6 +211,8 @@ void Map::spreadRiver(unsigned short x, unsigned short y) {
 void Map::spreadRiver2(unsigned short x, unsigned short y, short inertia_x, short inertia_y) {
     if (x >= 1 && x<width-1 && y>=1 && y<height-1 && cells[x][y].height>=0) {
         cells[x][y].height = -1;
+        cells[x][y].river = true;
+        cells[x][y].continentSize = 0;
         mapimage.setPixel(x, y, sf::Color::Green);
         if (fabs(inertia_x)<1 && fabs(inertia_y)<1) return;
         if (rand()%(int(sqrt(inertia_x*inertia_x + inertia_y*inertia_y)))==0) return;
@@ -216,12 +231,71 @@ void Map::spreadRiver2(unsigned short x, unsigned short y, short inertia_x, shor
         else if (next_inertia_x<0) next_inertia_x+=10;
         if (next_inertia_y>0) next_inertia_y-=10;
         else if (next_inertia_y<0) next_inertia_y+=10;
+
         auto diffDistx = cells[x+1][y].distanceToCoast - cells[x-1][y].distanceToCoast;
-        if (diffDistx>0) next_inertia_x+=diffDistx*7;
-        if (diffDistx<0) next_inertia_x+=diffDistx*7;
+        if (diffDistx>0) next_inertia_x+=diffDistx*5;
+        if (diffDistx<0) next_inertia_x+=diffDistx*5;
         auto diffDisty = cells[x][y+1].distanceToCoast - cells[x][y-1].distanceToCoast;
-        if (diffDisty>0) next_inertia_y+=diffDisty*7;
-        if (diffDisty<0) next_inertia_y+=diffDisty*7;
+        if (diffDisty>0) next_inertia_y+=diffDisty*5;
+        if (diffDisty<0) next_inertia_y+=diffDisty*5;
+
+        auto diffHeightx = cells[x+1][y].height - cells[x-1][y].height;
+        if (diffHeightx>0) next_inertia_x+=diffHeightx*5;
+        if (diffHeightx<0) next_inertia_x+=diffHeightx*5;
+        auto diffHeighty = cells[x][y+1].height - cells[x][y-1].height;
+        if (diffHeighty>0) next_inertia_y+=diffHeighty*5;
+        if (diffHeighty<0) next_inertia_y+=diffHeighty*5;
+
         spreadRiver2(next_x,next_y,next_inertia_x,next_inertia_y);
+    }
+}
+
+
+void Map::genTemperature() {
+    unsigned short t_halfHeight = height/2;
+    for (unsigned short xxx = 0; xxx < width; xxx++) {
+        for (unsigned short yyy = 0; yyy < height; yyy++) {
+            float noisex = xxx + width*(seed%width);
+            float noisey = yyy + width*int(seed/width);
+            float noiseMap = 1.5*snoise.fractal(5, noisex,noisey);
+            if (yyy <= t_halfHeight) { //northern hemisphere
+                cells[xxx][yyy].temperature = -20 + 30*(0.5 + 2.0f*atan((yyy-0.1f*height)/45.0f)/PI) + 15*(0.5 + 2.0f*atan((yyy-0.39f*height)/45.0f)/PI) + 10*noiseMap; //each arctan function create a jump (one between the poles and the temperate zone and one between the temperate zone and the hot ring)
+            }
+            else { //southern hemisphere
+                cells[xxx][yyy].temperature = -20 + 30*(0.5 + 2.0f*atan((height-yyy-0.1f*height)/45.0f)/PI) + 15*(0.5 + 2.0f*atan((height-yyy-0.39f*height)/45.0f)/PI) + 10*noiseMap;
+            }
+        }
+    }
+    // now blur the line between the two sides //can be optimized... //TODO : make it linear maybe
+    float t_mapWidth = width;
+    for (unsigned short yyy = 0; yyy < height; yyy++) {
+        // first the left side, first 5%
+        for (unsigned short xxx = 0; xxx < t_mapWidth*0.05; xxx++) {
+            cells[xxx][yyy].temperature = cells[xxx][yyy].temperature * (0.5+xxx/(t_mapWidth*0.1))
+                                           + cells[width -1 - xxx][yyy].temperature * (0.5-xxx/(t_mapWidth*0.1));
+        }
+        // then the right side, last 5%
+        for (unsigned short xxx = t_mapWidth*0.95; xxx < width; xxx++) {
+            cells[xxx][yyy].temperature = cells[xxx][yyy].temperature * (1-(xxx-t_mapWidth*0.95)/(t_mapWidth*0.1))
+                                           + cells[width -1 - xxx][yyy].temperature * (xxx-t_mapWidth*0.95)/(t_mapWidth*0.1);
+        }
+    }
+}
+
+void Map::genHumidity() {
+    for (unsigned short xxx = 0; xxx < width; xxx++) {
+        for (unsigned short yyy = 0; yyy < height; yyy++) {
+            auto continentSize = cells[xxx][yyy].continentSize;
+            auto temperature = cells[xxx][yyy].temperature;
+            auto height = cells[xxx][yyy].height;
+            if (height < 0 && !cells[xxx][yyy].river) {
+                auto humidity = 55 + 50.0f * atan((temperature-15.0f)/6.0f)/PI; //dependence on temperature //see notes about atanJump...
+                humidity -= exp(-continentSize/3000.0f) * (21 + 22*atan((temperature-18)/3)/PI); //dependence on height zone size which itself also depends on temperature //see notes about expDecreaseFactor
+                cells[xxx][yyy].humidity = humidity;
+            }
+            else {
+                cells[xxx][yyy].humidity = 20 + (cells[xxx][yyy].river)*20;
+            }
+        }
     }
 }

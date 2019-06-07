@@ -52,3 +52,43 @@ void Map::selectContinentSizeMap() {
     maptexture.loadFromImage(mapimage);
     mapsprite.setTexture(maptexture);
 }
+
+void Map::selectTemperatureMap() {
+    mapimage.create(width,height);
+    for (size_t xxx = 0; xxx < width; xxx++) {
+        for (size_t yyy = 0; yyy < height; yyy++) {
+            auto temperature = cells[xxx][yyy].temperature;
+            sf::Uint8 greyWater{cells[xxx][yyy].height >= 0 ? (sf::Uint8)0 : (sf::Uint8)20};
+            if (temperature >= 15) {
+                sf::Uint8 tempColor = (sf::Uint8)(200-2*(temperature-15)) - greyWater;
+                mapimage.setPixel(xxx, yyy, sf::Color{(sf::Uint8)(200-greyWater),tempColor,tempColor,255}); //can overflow if temperature is too low or too high
+            }
+            else {
+                sf::Uint8 tempColor = (sf::Uint8)(200+2*(temperature-15)) - greyWater;
+                mapimage.setPixel(xxx, yyy, sf::Color{tempColor,tempColor,(sf::Uint8)(200-greyWater),255}); //can overflow if temperature is too low or too high
+            }
+        }
+    }
+    maptexture.loadFromImage(mapimage);
+    mapsprite.setTexture(maptexture);
+}
+
+void Map::selectHumidityMap() {
+    mapimage.create(width,height);
+    for (size_t xxx = 0; xxx < width; xxx++) {
+        for (size_t yyy = 0; yyy < height; yyy++) {
+            auto humidity = cells[xxx][yyy].humidity;
+            sf::Uint8 greyWater{cells[xxx][yyy].height >= 0 ? (sf::Uint8)0 : (sf::Uint8)20};
+            if (humidity >= 15) {
+                sf::Uint8 tempColor = (sf::Uint8)(200 - 2*(humidity-40)) - greyWater;
+                mapimage.setPixel(xxx, yyy, sf::Color{tempColor,tempColor,(sf::Uint8)(200-greyWater),255});
+            }
+            else {
+                sf::Uint8 tempColor = (sf::Uint8)(200 + 3*(humidity-40)) - greyWater;
+                mapimage.setPixel(xxx, yyy, sf::Color{(sf::Uint8)(200-greyWater),tempColor,tempColor,255});
+            }
+        }
+    }
+    maptexture.loadFromImage(mapimage);
+    mapsprite.setTexture(maptexture);
+}
