@@ -21,7 +21,7 @@
 [Character]+1-[Culture]
 [Culture]+* subcultures-[Culture]
 
-[Cell]++0..1-[PopulationGroup]
+[Cell]++*-[PopulationGroup]
 [Cell]++0..1-1[Settlement]
 
 [Settlement]+* leaders-[Character]
