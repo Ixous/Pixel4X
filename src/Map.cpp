@@ -1,7 +1,7 @@
 #include "Map.hpp"
 
 Map::Map(unsigned short _width, unsigned short _height, int _seed) :
-map(this) , height(_height) , width(_width) , cells(_width,std::vector<Cell>(_height)) , seed(_seed) 
+map(this) , height(_height) , width(_width) , seed(_seed)  , cells(_width,std::vector<Cell>(_height))
 {
     for (size_t xxx = 0; xxx < width; xxx++) {
         for (size_t yyy = 0; yyy < height; yyy++) {
@@ -23,6 +23,7 @@ void Map::generate() {
     genRivers();
     genTemperature();
     genHumidity();
+    genFertility();
 }
 
 void Map::update() {
@@ -30,24 +31,31 @@ void Map::update() {
 }
 
 void Map::mapmode(Mapmode _mapmode) {
+    if (mapimage.getSize() != sf::Vector2u{width,height})
+        mapimage.create(width,height);
     switch (_mapmode) {
         case Mapmode::HEIGHT:
-            selectHeightMap();
+            mapmodeHeight();
             break;
         case Mapmode::TEMPERATURE:
-            selectTemperatureMap();
+            mapmodeTemperature();
             break;
         case Mapmode::HUMIDITY:
-            selectHumidityMap();
+            mapmodeHumidity();
+            break;
+        case Mapmode::FERTILITY:
+            mapmodeFertility();
             break;
         case Mapmode::DEBUG_CONTINENTSIZE:
-            selectContinentSizeMap();
+            mapmodeContinentSize();
             break;
         case Mapmode::DEBUG_DISTANCETOCOAST:
-            selectDistanceToCoastMap();
+            mapmodeDistanceToCoast();
             break;
         default:
-            selectHeightMap();
+            mapmodeHeight();
             break;
     }
+    maptexture.loadFromImage(mapimage);
+    mapsprite.setTexture(maptexture);
 }

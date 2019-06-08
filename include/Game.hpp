@@ -24,8 +24,11 @@ public:
     void init();
     void gameloop();
     void handleEvent();
+    void handleKeypress(sf::Keyboard::Key, bool);
     void tick();
     void draw();
+
+    bool keypressed_Alt;
 
     sf::RenderWindow window;
     sf::View mapview;

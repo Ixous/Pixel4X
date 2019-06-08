@@ -14,4 +14,5 @@ public:
 
     char temperature;
     unsigned char humidity;
+    unsigned char fertility;
 };

@@ -8,6 +8,7 @@
 Game::Game() :
 game(this) , window (sf::VideoMode(2048, 1024+512), "Pixel4X") , mapview(sf::FloatRect(0,0,1024,512+256)), map(1024,512+256, 1)
 {
+    keypressed_Alt = false;
 }
 
 Game::~Game() {
@@ -33,8 +34,38 @@ void Game::handleEvent() {
             case sf::Event::Closed:
                 window.close();
                 break;
+            case sf::Event::KeyPressed:
+                handleKeypress(event.key.code, true);
+                break;
+            case sf::Event::KeyReleased:
+                handleKeypress(event.key.code, false);
+                break;
             default:
                 break;
+        }
+    }
+}
+
+void Game::handleKeypress(sf::Keyboard::Key key, bool pressed) {
+    if (window.hasFocus()) {
+        switch (key) {
+        case sf::Keyboard::Key::LAlt:
+            keypressed_Alt = pressed;
+            break;
+        case sf::Keyboard::Key::Num1:
+            if (keypressed_Alt) map.mapmode(Mapmode::HEIGHT);
+            break;
+        case sf::Keyboard::Key::Num2:
+            if (keypressed_Alt) map.mapmode(Mapmode::TEMPERATURE);
+            break;
+        case sf::Keyboard::Key::Num3:
+            if (keypressed_Alt) map.mapmode(Mapmode::HUMIDITY);
+            break;
+        case sf::Keyboard::Key::Num4:
+            if (keypressed_Alt) map.mapmode(Mapmode::FERTILITY);
+            break;
+        default:
+            break;
         }
     }
 }

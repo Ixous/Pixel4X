@@ -77,6 +77,18 @@ void Map::genHeightMap() {
     }
 }
 
+void Map::markCoast() {
+    for (unsigned short xxx = 1; xxx < width-1; xxx++) {
+        for (unsigned short yyy = 1; yyy < height-1; yyy++) {
+            if (cells[xxx][yyy].height>=0 && (   cells[xxx-1][yyy].height<0 
+                                              || cells[xxx][yyy-1].height<0
+                                              || cells[xxx+1][yyy].height<0
+                                              || cells[xxx][yyy+1].height<0))
+                coast.push_back(&cells[xxx][yyy]);
+        }
+    }
+}
+
 void Map::calcDistanceToCoast() {
     for (auto coastcell : coast) coastcell->distanceToCoast=0;
     calcDistanceToCoast_iter(coast, 1);
@@ -140,18 +152,6 @@ void Map::calcContinentSize() {
                 queue.clear(); //should be useless
                 continent.clear();
             }
-        }
-    }
-}
-
-void Map::markCoast() {
-    for (unsigned short xxx = 1; xxx < width-1; xxx++) {
-        for (unsigned short yyy = 1; yyy < height-1; yyy++) {
-            if (cells[xxx][yyy].height>=0 && (   cells[xxx-1][yyy].height<0 
-                                              || cells[xxx][yyy-1].height<0
-                                              || cells[xxx+1][yyy].height<0
-                                              || cells[xxx][yyy+1].height<0))
-                coast.push_back(&cells[xxx][yyy]);
         }
     }
 }
@@ -273,6 +273,44 @@ void Map::genHumidity() {
                      - cells[xxx][yyy].river*5
                      - (height=0)*20;
             cells[xxx][yyy].humidity = humidity;
+        }
+    }
+}
+
+void Map::genFertility() {
+    for (unsigned short xxx = 0; xxx < width; xxx++) {
+        for (unsigned short yyy = 0; yyy < height; yyy++) {
+            if (cells[xxx][yyy].height>=0) {
+                int8_t t = cells[xxx][yyy].temperature;
+                double normT; //normal curve
+                if (t < 0) normT=0;
+                else if (t < 10) normT=2.6*t;
+                else if (t < 15) normT=15*t-124;
+                else if (t < 20) normT=25*t-274;
+                else if (t < 22) normT=13*t-34;
+                else if (t < 25) normT=-9*t+450;
+                else if (t < 30) normT=-20*t+725;
+                else if (t < 40) normT=-6*t+305;
+                else if (t < 50) normT=-5*t+265;
+                else if (t < 65) normT=-t+65;
+                else if (t >= 65) normT=0;
+
+                int8_t h = fmin(cells[xxx][yyy].humidity, cells[xxx][yyy].humidity-15);
+                double normH; //normal curve
+                if (h < 0) normH=0;
+                else if (h < 10) normH=2*h;
+                else if (h < 20) normH=6*h-40;
+                else if (h < 30) normH=8*h-80;
+                else if (h < 40) normH=6*h-20;
+                else if (h < 45) normH=4*h+60;
+                else if (h < 60) normH=h+195;
+                else if (h < 70) normH=375-2*h;
+                else if (h < 80) normH=1075-12*h;
+                else if (h < 103) normH=515-5*h;
+                else if (h >= 103) normH=0;
+
+                cells[xxx][yyy].fertility = log((normT*normH/255.0)/(15.0) +1.0)*255.0/3.0;
+            } else cells[xxx][yyy].fertility = 0;
         }
     }
 }

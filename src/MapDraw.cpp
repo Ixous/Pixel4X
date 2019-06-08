@@ -5,8 +5,7 @@ void Map::draw(sf::RenderWindow* window) {
     window->draw(mapsprite);
 }
 
-void Map::selectHeightMap() {
-    mapimage.create(width,height);
+void Map::mapmodeHeight() {
     for (size_t xxx = 0; xxx < width; xxx++) {
         for (size_t yyy = 0; yyy < height; yyy++) {
             sf::Color color;
@@ -19,43 +18,9 @@ void Map::selectHeightMap() {
             mapimage.setPixel(xxx,yyy, color);
         }
     }
-    maptexture.loadFromImage(mapimage);
-    mapsprite.setTexture(maptexture);
 }
 
-void Map::selectDistanceToCoastMap() {
-    mapimage.create(width,height);
-    for (size_t xxx = 0; xxx < width; xxx++) {
-        for (size_t yyy = 0; yyy < height; yyy++) {
-            sf::Color color;
-            auto distanceToCoast = cells[xxx][yyy].distanceToCoast;
-            auto something = (sf::Uint8)(2*distanceToCoast);            
-            color = sf::Color{something,0,0,255};
-            mapimage.setPixel(xxx,yyy, color);
-        }
-    }
-    for (auto coastcell : coast) mapimage.setPixel(coastcell->x,coastcell->y,sf::Color::Blue);
-    maptexture.loadFromImage(mapimage);
-    mapsprite.setTexture(maptexture);
-}
-
-void Map::selectContinentSizeMap() {
-    mapimage.create(width,height);
-    for (size_t xxx = 0; xxx < width; xxx++) {
-        for (size_t yyy = 0; yyy < height; yyy++) {
-            sf::Color color;
-            auto continentSize = cells[xxx][yyy].continentSize;
-            color = sf::Color{0,(sf::Uint8)(255*continentSize/32000.0f),0,255};
-            if (cells[xxx][yyy].height<0) color = sf::Color{0,0,(sf::Uint8)(255*continentSize/65000.0f), 255};
-            mapimage.setPixel(xxx,yyy, color);
-        }
-    }
-    maptexture.loadFromImage(mapimage);
-    mapsprite.setTexture(maptexture);
-}
-
-void Map::selectTemperatureMap() {
-    mapimage.create(width,height);
+void Map::mapmodeTemperature() {
     for (size_t xxx = 0; xxx < width; xxx++) {
         for (size_t yyy = 0; yyy < height; yyy++) {
             auto temperature = cells[xxx][yyy].temperature;
@@ -70,12 +35,9 @@ void Map::selectTemperatureMap() {
             }
         }
     }
-    maptexture.loadFromImage(mapimage);
-    mapsprite.setTexture(maptexture);
 }
 
-void Map::selectHumidityMap() {
-    mapimage.create(width,height);
+void Map::mapmodeHumidity() {
     for (size_t xxx = 0; xxx < width; xxx++) {
         for (size_t yyy = 0; yyy < height; yyy++) {
             auto humidity = cells[xxx][yyy].humidity;
@@ -90,6 +52,49 @@ void Map::selectHumidityMap() {
             }
         }
     }
-    maptexture.loadFromImage(mapimage);
-    mapsprite.setTexture(maptexture);
+}
+
+void Map::mapmodeFertility() {
+    for (unsigned short xxx = 0; xxx < width; xxx++) {
+        for (unsigned short yyy = 0; yyy < height; yyy++) {
+            uint8_t fertility = cells[xxx][yyy].fertility;
+            int8_t t_height = cells[xxx][yyy].height;
+            if (t_height<0) mapimage.setPixel(xxx, yyy, sf::Color{(sf::Uint8)(120+t_height/3.0),(sf::Uint8)(120+t_height/3.0),(sf::Uint8)(120+t_height/3.0),255});
+            else {
+                if (fertility >= 80) {
+                    sf::Uint8 tempColor = (sf::Uint8)(200 - (fertility-80)/4);
+                    mapimage.setPixel(xxx, yyy, sf::Color{tempColor,(sf::Uint8)(200),tempColor,255});
+                }
+                else {
+                    sf::Uint8 tempColor = (sf::Uint8)(200 + (fertility-80));
+                    mapimage.setPixel(xxx, yyy, sf::Color{(sf::Uint8)(200),tempColor,tempColor,255});
+                }
+            }
+        }
+    }
+}
+
+void Map::mapmodeDistanceToCoast() {
+    for (size_t xxx = 0; xxx < width; xxx++) {
+        for (size_t yyy = 0; yyy < height; yyy++) {
+            sf::Color color;
+            auto distanceToCoast = cells[xxx][yyy].distanceToCoast;
+            auto something = (sf::Uint8)(2*distanceToCoast);            
+            color = sf::Color{something,0,0,255};
+            mapimage.setPixel(xxx,yyy, color);
+        }
+    }
+    for (auto coastcell : coast) mapimage.setPixel(coastcell->x,coastcell->y,sf::Color::Blue);
+}
+
+void Map::mapmodeContinentSize() {
+    for (size_t xxx = 0; xxx < width; xxx++) {
+        for (size_t yyy = 0; yyy < height; yyy++) {
+            sf::Color color;
+            auto continentSize = cells[xxx][yyy].continentSize;
+            color = sf::Color{0,(sf::Uint8)(255*continentSize/32000.0f),0,255};
+            if (cells[xxx][yyy].height<0) color = sf::Color{0,0,(sf::Uint8)(255*continentSize/65000.0f), 255};
+            mapimage.setPixel(xxx,yyy, color);
+        }
+    }
 }

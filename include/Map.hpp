@@ -6,7 +6,7 @@
 #include "Cell.hpp"
 
 enum class Mapmode {
-    HEIGHT, TEMPERATURE, HUMIDITY,
+    HEIGHT, TEMPERATURE, HUMIDITY, FERTILITY,
     DEBUG_CONTINENTSIZE, DEBUG_DISTANCETOCOAST
 };
 
@@ -44,14 +44,17 @@ private:
     void genTemperature();
     void genHumidity();
 
+    void genFertility();
+
     sf::Image mapimage;
     sf::Texture maptexture;
     sf::Sprite mapsprite;
-    void selectHeightMap();
-    void selectDistanceToCoastMap();
-    void selectContinentSizeMap();
-    void selectTemperatureMap();
-    void selectHumidityMap();
+    void mapmodeHeight();
+    void mapmodeTemperature();
+    void mapmodeHumidity();
+    void mapmodeFertility();
+    void mapmodeDistanceToCoast();
+    void mapmodeContinentSize();
 
     void updateHumidity();
 };
