@@ -39,6 +39,7 @@ public:
     std::vector<Nation> nations;
     std::vector<Province> provinces;
     std::vector<City> cities;
+    void spawnCountries(unsigned short nbrNations);
 
     std::vector<Character> characters;
 

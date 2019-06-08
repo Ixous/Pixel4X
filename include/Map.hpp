@@ -25,6 +25,9 @@ public:
     void mapmode(Mapmode _mapmode);
     void draw(sf::RenderWindow*);
 
+    bool isValid(int,int);
+    std::vector<Cell*> getNeighbours(Cell*, unsigned int distance, bool);
+    std::vector<Cell*> getFertileLands();
 private:
     unsigned short height, width;
     int seed;

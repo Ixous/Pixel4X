@@ -13,14 +13,7 @@ void Map::updateHumidity() {
         for (unsigned short yyy = 1; yyy < height-1; yyy++) {
             if (cells[xxx][yyy].height>=0) {
                 unsigned short neightbourHumidity = 0;
-                neightbourHumidity += cells[xxx-1][yyy-1].humidity;
-                neightbourHumidity += cells[xxx][yyy-1].humidity;
-                neightbourHumidity += cells[xxx+1][yyy-1].humidity;
-                neightbourHumidity += cells[xxx+1][yyy].humidity;
-                neightbourHumidity += cells[xxx+1][yyy+1].humidity;
-                neightbourHumidity += cells[xxx][yyy+1].humidity;
-                neightbourHumidity += cells[xxx-1][yyy+1].humidity;
-                neightbourHumidity += cells[xxx-1][yyy].humidity;
+                for (auto cell : getNeighbours(&cells[xxx][yyy], 1, true)) neightbourHumidity += cell->humidity;
                 neightbourHumidity /= 8;
                 newHumidity[xxx-1][yyy-1] = 0.1*cells[xxx][yyy].humidity + 0.9*neightbourHumidity;
             } else newHumidity[xxx-1][yyy-1] = cells[xxx][yyy].humidity;

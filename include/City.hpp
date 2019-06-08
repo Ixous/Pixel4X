@@ -1,5 +1,9 @@
 #pragma once
 
+class City;
+
+#include <vector>
+
 #include "Cell.hpp"
 #include "Character.hpp"
 #include "Province.hpp"
@@ -9,6 +13,8 @@ class City {
 public:
     City(Cell*);
     ~City();
+	
+	sf::Color color;
 
     Cell* location;
 
