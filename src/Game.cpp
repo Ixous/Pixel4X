@@ -14,23 +14,38 @@ Game::~Game() {
 }
 
 void Game::gameloop() {
+    init();
+    while (window.isOpen()) {
+        handleEvent();
+        draw();
+    }
+}
+
+void Game::init() {
     map.generate();
     map.mapmode(Mapmode::HEIGHT);
+}
 
-    while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            switch (event.type) {
-                case sf::Event::Closed:
-                    window.close();
-                    break;
-                default:
-                    break;
-            }
+void Game::handleEvent() {
+    sf::Event event;
+    while (window.pollEvent(event)) {
+        switch (event.type) {
+            case sf::Event::Closed:
+                window.close();
+                break;
+            default:
+                break;
         }
-        window.clear(sf::Color::Black);
-        window.setView(mapview);
-        map.draw(&window);
-        window.display();
     }
+}
+
+void Game::tick() {
+    map.update();
+}
+
+void Game::draw() {
+    window.clear(sf::Color::Black);
+    window.setView(mapview);
+    map.draw(&window);
+    window.display();
 }
