@@ -49,6 +49,9 @@ void Game::handleEvent() {
 void Game::handleKeypress(sf::Keyboard::Key key, bool pressed) {
     if (window.hasFocus()) {
         switch (key) {
+        case sf::Keyboard::Key::Enter:
+            tick();
+            break;
         case sf::Keyboard::Key::LAlt:
             keypressed_Alt = pressed;
             break;

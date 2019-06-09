@@ -5,7 +5,7 @@ struct Indices {
 };
 
 float sigmoid(); //TODO
-float cosDecay(float x, float pow=1);
+float cosDecay(float x, float pow);
 float expDecay(); //TODO
-float cosCurve(float x, float pow=1);
+float cosCurve(float x, float pow);
 float bellCurve(); //TODO

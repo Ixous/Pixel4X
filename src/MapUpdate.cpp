@@ -6,6 +6,9 @@
 #include <stdlib.h> //rand()
 #include <iostream>
 
+#include "SimplexNoise.h"
+SimplexNoise snoise_weather{.0025f,1.0f,2.2f,0.5f};
+
 #define PI 3.14159265358979323846
 
 #define WEATHER_TEMPERATURE_CONVECTION_MAXDISTANCE 10
@@ -32,11 +35,11 @@ void Map::weatherConduction() {
     for (unsigned short xxx = 0; xxx < width; xxx++) {
         for (unsigned short yyy = 0; yyy < height; yyy++) {
             int neighbourTemperatureSum = 0;
-            for (auto neighbour : getNeighbours(&cells[xxx][yyy] , WEATHER_TEMPERATURE_CONDUCTION_AREA)) neighbourTemperatureSum+=neighbour->temperature;
-            cells[xxx][yyy].temperature = neighbourTemperatureSum/getNeighbours(&cells[xxx][yyy] , WEATHER_TEMPERATURE_CONDUCTION_AREA).size;
+            for (auto neighbour : getNeighbours(&cells[xxx][yyy] , WEATHER_TEMPERATURE_CONDUCTION_AREA,false)) neighbourTemperatureSum+=neighbour->temperature;
+            cells[xxx][yyy].temperature = neighbourTemperatureSum/getNeighbours(&cells[xxx][yyy] , WEATHER_TEMPERATURE_CONDUCTION_AREA, false).size();
             unsigned int neighbourHumiditySum = 0;
-            for (auto neighbour : getNeighbours(&cells[xxx][yyy] , WEATHER_HUMIDITY_CONDUCTION_AREA)) neighbourHumiditySum+=neighbour->humidity;
-            cells[xxx][yyy].humidity = neighbourHumiditySum/getNeighbours(&cells[xxx][yyy] , WEATHER_HUMIDITY_CONDUCTION_AREA).size;
+            for (auto neighbour : getNeighbours(&cells[xxx][yyy] , WEATHER_HUMIDITY_CONDUCTION_AREA,false)) neighbourHumiditySum+=neighbour->humidity;
+            cells[xxx][yyy].humidity = neighbourHumiditySum/getNeighbours(&cells[xxx][yyy] , WEATHER_HUMIDITY_CONDUCTION_AREA, false).size();
         }
     }
 }
@@ -112,8 +115,11 @@ void Map::weatherCloud() {
 }
 
 void Map::weatherWind() {
+    static float time;
     for (unsigned short xxx = 0; xxx < width; xxx++) {
         for (unsigned short yyy = 0; yyy < height; yyy++) {
+            cells[xxx][yyy].windx = snoise_weather.fractal(2, time,0);
+            cells[xxx][yyy].windy = snoise_weather.fractal(2, 0,time);
         }
     }
 }

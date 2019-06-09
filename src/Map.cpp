@@ -27,7 +27,14 @@ void Map::generate() {
 }
 
 void Map::update() {
-    updateHumidity();
+    weatherConduction();
+    weatherConvection();
+    weatherSunlight();
+    weatherEvaporation();
+    weatherRain();
+    weatherCloud();
+    weatherWind();
+    mapmode(selectedMapmode);
 }
 
 void Map::mapmode(Mapmode _mapmode) {
@@ -56,6 +63,7 @@ void Map::mapmode(Mapmode _mapmode) {
             mapmodeHeight();
             break;
     }
+    selectedMapmode = _mapmode;
     maptexture.loadFromImage(mapimage);
     mapsprite.setTexture(maptexture);
 }

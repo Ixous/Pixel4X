@@ -26,7 +26,7 @@ public:
     void draw(sf::RenderWindow*);
 
     bool isValid(int,int);
-    std::vector<Cell*> getNeighbours(Cell*, unsigned int distance=1, bool square=false);
+    std::vector<Cell*> getNeighbours(Cell*, unsigned int distance, bool square);
     std::vector<Cell*> getFertileLands();
 private:
     unsigned short height, width;
@@ -55,6 +55,7 @@ private:
     sf::Image mapimage;
     sf::Texture maptexture;
     sf::Sprite mapsprite;
+    Mapmode selectedMapmode;
     void mapmodeHeight();
     void mapmodeTemperature();
     void mapmodeHumidity();
