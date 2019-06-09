@@ -54,6 +54,37 @@ void Map::mapmodeHumidity() {
     }
 }
 
+void Map::mapmodeWind() {
+    for (size_t xxx = 0; xxx < width; xxx++) {
+        for (size_t yyy = 0; yyy < height; yyy++) {
+            // auto windforce = sqrt(pow(cells[xxx][yyy].windx,2)+pow(cells[xxx][yyy].windy,2)); //TODO : make it work.....
+            mapimage.setPixel(xxx, yyy, sf::Color{(sf::Uint8)(128+cells[xxx][yyy].windx),200,(sf::Uint8)(128+cells[xxx][yyy].windy),255});
+        }
+    }
+}
+
+void Map::mapmodeCloud() {
+    for (size_t xxx = 0; xxx < width; xxx++) {
+        for (size_t yyy = 0; yyy < height; yyy++) {
+            auto cloud = cells[xxx][yyy].cloud;
+            sf::Uint8 greyWater{cells[xxx][yyy].height >= 0 ? (sf::Uint8)0 : (sf::Uint8)0};
+            sf::Uint8 tempColor = (sf::Uint8)((cloud)) - greyWater;
+            mapimage.setPixel(xxx, yyy, sf::Color{(sf::Uint8)(200-greyWater),(sf::Uint8)(200-greyWater),tempColor,255});
+        }
+    }
+}
+
+void Map::mapmodeRain() {
+    for (size_t xxx = 0; xxx < width; xxx++) {
+        for (size_t yyy = 0; yyy < height; yyy++) {
+            auto rain = cells[xxx][yyy].rain;
+            sf::Uint8 greyWater{cells[xxx][yyy].height >= 0 ? (sf::Uint8)0 : (sf::Uint8)0};
+            sf::Uint8 tempColor = (sf::Uint8)((rain)) - greyWater;
+            mapimage.setPixel(xxx, yyy, sf::Color{(sf::Uint8)(200-greyWater),(sf::Uint8)(200-greyWater),tempColor,255});
+        }
+    }
+}
+
 void Map::mapmodeFertility() {
     for (unsigned short xxx = 0; xxx < width; xxx++) {
         for (unsigned short yyy = 0; yyy < height; yyy++) {

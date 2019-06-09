@@ -6,11 +6,11 @@ bool Map::isValid(int x, int y) {
 
 std::vector<Cell*> Map::getNeighbours(Cell* cell, unsigned int distance, bool square) { // TODO : neighbours across the border of cylinder
     std::vector<Cell*> neighbours;
-    for (size_t xxx = cell->x-distance; xxx < cell->x+distance; xxx++) {
-        for (size_t yyy = cell->y-distance; yyy < cell->y+distance; yyy++) {
-            if (isValid(xxx,yyy) && !(xxx==cell->x || yyy==cell->y)) {
+    for (int xxx = cell->x-distance; xxx <= int(cell->x+distance); xxx++) {
+        for (int yyy = cell->y-distance; yyy <= int(cell->y+distance); yyy++) {
+            if (isValid(xxx,yyy) && !(xxx==cell->x && yyy==cell->y)) {
                 if (square) neighbours.push_back(&cells[xxx][yyy]);
-                else if (xxx+yyy<=distance) neighbours.push_back(&cells[xxx][yyy]);
+                else if (fabs(xxx-cell->x)+fabs(yyy-cell->y)<=distance) neighbours.push_back(&cells[xxx][yyy]);
             }
         }
     }

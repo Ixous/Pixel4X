@@ -4,7 +4,6 @@
 
 #include <cmath> //sin() , atan() , pow()
 #include <stdlib.h> //rand()
-#include <iostream>
 
 #include "SimplexNoise.h"
 SimplexNoise snoise_weather{.0025f,1.0f,2.2f,0.5f};
@@ -12,14 +11,12 @@ SimplexNoise snoise_weather{.0025f,1.0f,2.2f,0.5f};
 #define PI 3.14159265358979323846
 
 #define WEATHER_TEMPERATURE_CONVECTION_MAXDISTANCE 10
-#define WEATHER_TEMPERATURE_CONDUCTION_AREA 1
-#define WEATHER_TEMPERATURE_SUNLIGHT_MULTIPLIER 2
+#define WEATHER_TEMPERATURE_SUNLIGHT_MULTIPLIER 20
 #define WEATHER_TEMPERATURE_SUNLIGHT_CLOUD_POWER 2
 #define WEATHER_TEMPERATURE_SUNLIGHT_LATITUDE_POWER 1
 #define WEATHER_TEMPERATURE_RAIN_MULTIPLIER 0.4
 
 #define WEATHER_HUMIDITY_CONVECTION_MAXDISTANCE 10
-#define WEATHER_HUMIDITY_CONDUCTION_AREA 1
 #define WEATHER_HUMIDITY_EVAPORATION_WATER_MULTIPLIER 0.05
 #define WEATHER_HUMIDITY_EVAPORATION_LAND_MULTIPLIER 0.05
 #define WEATHER_HUMIDITY_RAIN_MULTIPLIER 0.4
@@ -32,14 +29,20 @@ SimplexNoise snoise_weather{.0025f,1.0f,2.2f,0.5f};
 #define WEATHER_RAIN_CLOUD_MINIMUM 20
 
 void Map::weatherConduction() {
-    for (unsigned short xxx = 0; xxx < width; xxx++) {
-        for (unsigned short yyy = 0; yyy < height; yyy++) {
+    for (unsigned short xxx = 1; xxx < width-1; xxx++) {
+        for (unsigned short yyy = 1; yyy < height-1; yyy++) {
             int neighbourTemperatureSum = 0;
-            for (auto neighbour : getNeighbours(&cells[xxx][yyy] , WEATHER_TEMPERATURE_CONDUCTION_AREA,false)) neighbourTemperatureSum+=neighbour->temperature;
-            cells[xxx][yyy].temperature = neighbourTemperatureSum/getNeighbours(&cells[xxx][yyy] , WEATHER_TEMPERATURE_CONDUCTION_AREA, false).size();
-            unsigned int neighbourHumiditySum = 0;
-            for (auto neighbour : getNeighbours(&cells[xxx][yyy] , WEATHER_HUMIDITY_CONDUCTION_AREA,false)) neighbourHumiditySum+=neighbour->humidity;
-            cells[xxx][yyy].humidity = neighbourHumiditySum/getNeighbours(&cells[xxx][yyy] , WEATHER_HUMIDITY_CONDUCTION_AREA, false).size();
+            neighbourTemperatureSum += cells[xxx-1][yyy].temperature;
+            neighbourTemperatureSum += cells[xxx+1][yyy].temperature;
+            neighbourTemperatureSum += cells[xxx][yyy-1].temperature;
+            neighbourTemperatureSum += cells[xxx][yyy+1].temperature;
+            cells[xxx][yyy].temperature = neighbourTemperatureSum/4;
+            int neighbourHumiditySum = 0;
+            neighbourHumiditySum += cells[xxx-1][yyy].humidity;
+            neighbourHumiditySum += cells[xxx+1][yyy].humidity;
+            neighbourHumiditySum += cells[xxx][yyy-1].humidity;
+            neighbourHumiditySum += cells[xxx][yyy+1].humidity;
+            cells[xxx][yyy].humidity = neighbourHumiditySum/4;
         }
     }
 }
@@ -58,14 +61,14 @@ void Map::weatherConvection() {
     for (unsigned short xxx = 0; xxx < width; xxx++) {
         for (unsigned short yyy = 0; yyy < height; yyy++) {
             int xxx2 = xxx + WEATHER_TEMPERATURE_CONVECTION_MAXDISTANCE*cells[xxx][yyy].windx/128.0;
-            if (xxx2 < 0 || xxx2 > width) xxx2 = xxx;
+            if (xxx2 < 0 || xxx2 >= width) xxx2 = xxx;
             int yyy2 = yyy + WEATHER_TEMPERATURE_CONVECTION_MAXDISTANCE*cells[yyy][yyy].windy/128.0;
-            if (yyy2 < 0 || yyy2 > height) yyy2 = yyy;
+            if (yyy2 < 0 || yyy2 >= height) yyy2 = yyy;
             cells[xxx][yyy].temperature = oldTemperature[xxx2][yyy2];
             xxx2 = xxx + WEATHER_HUMIDITY_CONVECTION_MAXDISTANCE*cells[xxx][yyy].windx/128.0;
-            if (xxx2 < 0 || xxx2 > width) xxx2 = xxx;
+            if (xxx2 < 0 || xxx2 >= width) xxx2 = xxx;
             yyy2 = yyy + WEATHER_HUMIDITY_CONVECTION_MAXDISTANCE*cells[yyy][yyy].windy/128.0;
-            if (yyy2 < 0 || yyy2 > height) yyy2 = yyy;
+            if (yyy2 < 0 || yyy2 >= height) yyy2 = yyy;
             cells[xxx][yyy].humidity = oldHumidity[xxx2][yyy2];
         }
     }
@@ -118,8 +121,9 @@ void Map::weatherWind() {
     static float time;
     for (unsigned short xxx = 0; xxx < width; xxx++) {
         for (unsigned short yyy = 0; yyy < height; yyy++) {
-            cells[xxx][yyy].windx = snoise_weather.fractal(2, time,0);
-            cells[xxx][yyy].windy = snoise_weather.fractal(2, 0,time);
+            cells[xxx][yyy].windx = 127.0*snoise_weather.fractal(3, xxx+time,yyy);
+            cells[xxx][yyy].windy = 127.0*snoise_weather.fractal(3, xxx,yyy+time);
         }
     }
+    time+=100;
 }

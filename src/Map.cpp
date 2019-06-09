@@ -1,5 +1,7 @@
 #include "Map.hpp"
 
+#include <iostream>
+
 Map::Map(unsigned short _width, unsigned short _height, int _seed) :
 map(this) , height(_height) , width(_width) , seed(_seed)  , cells(_width,std::vector<Cell>(_height))
 {
@@ -27,12 +29,19 @@ void Map::generate() {
 }
 
 void Map::update() {
-    weatherConduction();
-    weatherConvection();
+    std::cout << "weatherConduction" << std::endl;
+    // weatherConduction();
+    std::cout << "weatherConvection" << std::endl;
+    // weatherConvection();
+    std::cout << "weatherSunlight" << std::endl;
     weatherSunlight();
-    weatherEvaporation();
-    weatherRain();
-    weatherCloud();
+    std::cout << "weatherEvaporation" << std::endl;
+    // weatherEvaporation();
+    std::cout << "weatherRain" << std::endl;
+    // weatherRain();
+    std::cout << "weatherCloud" << std::endl;
+    // weatherCloud();
+    std::cout << "weatherWind" << std::endl;
     weatherWind();
     mapmode(selectedMapmode);
 }
@@ -49,6 +58,15 @@ void Map::mapmode(Mapmode _mapmode) {
             break;
         case Mapmode::HUMIDITY:
             mapmodeHumidity();
+            break;
+        case Mapmode::WIND:
+            mapmodeWind();
+            break;
+        case Mapmode::CLOUD:
+            mapmodeCloud();
+            break;
+        case Mapmode::RAIN:
+            mapmodeRain();
             break;
         case Mapmode::FERTILITY:
             mapmodeFertility();

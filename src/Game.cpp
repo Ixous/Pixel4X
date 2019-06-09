@@ -65,6 +65,15 @@ void Game::handleKeypress(sf::Keyboard::Key key, bool pressed) {
             if (keypressed_Alt) map.mapmode(Mapmode::HUMIDITY);
             break;
         case sf::Keyboard::Key::Num4:
+            if (keypressed_Alt) map.mapmode(Mapmode::WIND);
+            break;
+        case sf::Keyboard::Key::Num5:
+            if (keypressed_Alt) map.mapmode(Mapmode::CLOUD);
+            break;
+        case sf::Keyboard::Key::Num6:
+            if (keypressed_Alt) map.mapmode(Mapmode::RAIN);
+            break;
+        case sf::Keyboard::Key::Num7:
             if (keypressed_Alt) map.mapmode(Mapmode::FERTILITY);
             break;
         default:

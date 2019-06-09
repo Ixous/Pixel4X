@@ -279,7 +279,7 @@ void Map::genWind() {
     }
 }
 
-void Map::genCoverage() {
+void Map::genCloud() {
     for (unsigned short xxx = 0; xxx < width; xxx++) {
         for (unsigned short yyy = 0; yyy < height; yyy++) {
             cells[xxx][yyy].cloud = 0;

@@ -6,7 +6,8 @@
 #include "Cell.hpp"
 
 enum class Mapmode {
-    HEIGHT, TEMPERATURE, HUMIDITY, FERTILITY,
+    HEIGHT, TEMPERATURE, HUMIDITY, WIND, CLOUD, RAIN,
+    FERTILITY,
     DEBUG_CONTINENTSIZE, DEBUG_DISTANCETOCOAST
 };
 
@@ -47,7 +48,7 @@ private:
     void genTemperature();
     void genHumidity();
     void genWind();
-    void genCoverage();
+    void genCloud();
     void genRain();
 
     void genFertility();
@@ -59,6 +60,9 @@ private:
     void mapmodeHeight();
     void mapmodeTemperature();
     void mapmodeHumidity();
+    void mapmodeWind();
+    void mapmodeCloud();
+    void mapmodeRain();
     void mapmodeFertility();
     void mapmodeDistanceToCoast();
     void mapmodeContinentSize();
