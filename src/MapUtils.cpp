@@ -4,7 +4,7 @@ bool Map::isValid(int x, int y) {
     return (x>=0 && x<width && y>=0 && y<height);
 }
 
-std::vector<Cell*> Map::getNeighbours(Cell* cell, unsigned int distance, bool square) {
+std::vector<Cell*> Map::getNeighbours(Cell* cell, unsigned int distance=1, bool square=false) { // TODO : neighbours across the border of cylinder
     std::vector<Cell*> neighbours;
     for (size_t xxx = cell->x-distance; xxx < cell->x+distance; xxx++) {
         for (size_t yyy = cell->y-distance; yyy < cell->y+distance; yyy++) {

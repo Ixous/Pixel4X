@@ -264,15 +264,33 @@ void Map::genTemperature() {
 void Map::genHumidity() {
     for (unsigned short xxx = 0; xxx < width; xxx++) {
         for (unsigned short yyy = 0; yyy < height; yyy++) {
-            auto continentSize = cells[xxx][yyy].continentSize;
-            auto temperature = cells[xxx][yyy].temperature;
-            auto height = cells[xxx][yyy].height;
-            auto humidity = 55 + 50.0f * atan((temperature-15.0f)/6.0f)/PI;
-            humidity += -exp(-continentSize/3000.0f) * (21 + 22*atan((temperature-18)/3)/PI) 
-                     + 2*fmax(0,20-cells[xxx][yyy].distanceToCoast)
-                     - cells[xxx][yyy].river*5
-                     - (height=0)*20;
-            cells[xxx][yyy].humidity = humidity;
+            if (cells[xxx][yyy].height>=0) cells[xxx][yyy].humidity = 50;
+            else cells[xxx][yyy].humidity = 100;
+        }
+    }
+}
+
+void Map::genWind() {
+    for (unsigned short xxx = 0; xxx < width; xxx++) {
+        for (unsigned short yyy = 0; yyy < height; yyy++) {
+            cells[xxx][yyy].windx = 0;
+            cells[xxx][yyy].windy = 0;
+        }
+    }
+}
+
+void Map::genCoverage() {
+    for (unsigned short xxx = 0; xxx < width; xxx++) {
+        for (unsigned short yyy = 0; yyy < height; yyy++) {
+            cells[xxx][yyy].coverage = 0;
+        }
+    }
+}
+
+void Map::genRain() {
+    for (unsigned short xxx = 0; xxx < width; xxx++) {
+        for (unsigned short yyy = 0; yyy < height; yyy++) {
+            cells[xxx][yyy].rain = 0;
         }
     }
 }

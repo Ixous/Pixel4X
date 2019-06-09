@@ -1,0 +1,32 @@
+// {type:class}
+// {direction:topDown}
+// {generate:true}
+
+[noise{bg:white}]->[wind direction]
+[wind direction]->[wind force]
+[height{bg:white}]->[wind force]
+
+[temperature]->[temperature]
+[wind force]->[temperature]
+[wind direction]->[temperature]
+[coverage]->[temperature]
+[altitude{bg:white}]->[temperature]
+[rain]->[temperature]
+
+[wind force]->[humidity]
+[wind direction]->[humidity]
+[coverage]->[humidity]
+[temperature]->[humidity]
+[humidity]->[humidity]
+[rain]->[humidity]
+[water{bg:white}]->[humidity]
+
+[wind direction]->[coverage]
+[wind force]->[coverage]
+[temperature]->[coverage]
+[humidity]->[coverage]
+[water]->[coverage]
+
+[humidity]->[rain]
+[temperature]->[rain]
+[coverage]->[rain]

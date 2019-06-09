@@ -14,5 +14,9 @@ public:
 
     char temperature;
     unsigned char humidity;
+    char windx, windy;
+    unsigned char coverage;
+    unsigned char rain;
+
     unsigned char fertility;
 };
