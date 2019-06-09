@@ -282,7 +282,7 @@ void Map::genWind() {
 void Map::genCoverage() {
     for (unsigned short xxx = 0; xxx < width; xxx++) {
         for (unsigned short yyy = 0; yyy < height; yyy++) {
-            cells[xxx][yyy].coverage = 0;
+            cells[xxx][yyy].cloud = 0;
         }
     }
 }

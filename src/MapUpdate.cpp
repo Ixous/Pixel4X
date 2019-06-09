@@ -8,57 +8,112 @@
 
 #define PI 3.14159265358979323846
 
-#define UPDATE_TEMPERATURE_CONVECTION_MAXDISTANCE 10
-#define UPDATE_TEMPERATURE_CONDUCTION_AREA 1
-#define UPDATE_TEMPERATURE_SUNLIGHT_MULTIPLIER 2
-#define UPDATE_TEMPERATURE_SUNLIGHT_COVERAGE_POWER 2
-#define UPDATE_TEMPERATURE_SUNLIGHT_LATITUDE_POWER 1
-#define UPDATE_TEMPERATURE_RAIN_MULTIPLIER 0.4
+#define WEATHER_TEMPERATURE_CONVECTION_MAXDISTANCE 10
+#define WEATHER_TEMPERATURE_CONDUCTION_AREA 1
+#define WEATHER_TEMPERATURE_SUNLIGHT_MULTIPLIER 2
+#define WEATHER_TEMPERATURE_SUNLIGHT_CLOUD_POWER 2
+#define WEATHER_TEMPERATURE_SUNLIGHT_LATITUDE_POWER 1
+#define WEATHER_TEMPERATURE_RAIN_MULTIPLIER 0.4
 
-void Map::updateTemperature() {
+#define WEATHER_HUMIDITY_CONVECTION_MAXDISTANCE 10
+#define WEATHER_HUMIDITY_CONDUCTION_AREA 1
+#define WEATHER_HUMIDITY_EVAPORATION_WATER_MULTIPLIER 0.05
+#define WEATHER_HUMIDITY_EVAPORATION_LAND_MULTIPLIER 0.05
+#define WEATHER_HUMIDITY_RAIN_MULTIPLIER 0.4
+
+#define WEATHER_CLOUD_CONVECTION_MAXDISTANCE 10
+#define WEATHER_CLOUD_FORMATION_HUMIDITY_MINIMUM 40
+#define WEATHER_CLOUD_FORMATION_TEMPERATURE_MINIMUM 30
+#define WEATHER_CLOUD_RAIN_MULTIPLIER 0.4
+
+#define WEATHER_RAIN_CLOUD_MINIMUM 20
+
+void Map::weatherConduction() {
+    for (unsigned short xxx = 0; xxx < width; xxx++) {
+        for (unsigned short yyy = 0; yyy < height; yyy++) {
+            int neighbourTemperatureSum = 0;
+            for (auto neighbour : getNeighbours(&cells[xxx][yyy] , WEATHER_TEMPERATURE_CONDUCTION_AREA)) neighbourTemperatureSum+=neighbour->temperature;
+            cells[xxx][yyy].temperature = neighbourTemperatureSum/getNeighbours(&cells[xxx][yyy] , WEATHER_TEMPERATURE_CONDUCTION_AREA).size;
+            unsigned int neighbourHumiditySum = 0;
+            for (auto neighbour : getNeighbours(&cells[xxx][yyy] , WEATHER_HUMIDITY_CONDUCTION_AREA)) neighbourHumiditySum+=neighbour->humidity;
+            cells[xxx][yyy].humidity = neighbourHumiditySum/getNeighbours(&cells[xxx][yyy] , WEATHER_HUMIDITY_CONDUCTION_AREA).size;
+        }
+    }
+}
+
+void Map::weatherConvection() {
     std::vector<std::vector<unsigned char>> oldTemperature(width, std::vector<unsigned char>(height));
+    std::vector<std::vector<unsigned char>> oldHumidity(width, std::vector<unsigned char>(height));
+    std::vector<std::vector<unsigned char>> oldCloud(width, std::vector<unsigned char>(height));
     for (unsigned short xxx = 0; xxx < width; xxx++) {
         for (unsigned short yyy = 0; yyy < height; yyy++) {
             oldTemperature[xxx][yyy] = cells[xxx][yyy].temperature;
+            oldHumidity[xxx][yyy] = cells[xxx][yyy].humidity;
+            oldCloud[xxx][yyy] = cells[xxx][yyy].cloud;
         }
     }
     for (unsigned short xxx = 0; xxx < width; xxx++) {
         for (unsigned short yyy = 0; yyy < height; yyy++) {
-            // Convection
-            int xxx2 = xxx + UPDATE_TEMPERATURE_CONVECTION_MAXDISTANCE*cells[xxx][yyy].windx/128.0;
+            int xxx2 = xxx + WEATHER_TEMPERATURE_CONVECTION_MAXDISTANCE*cells[xxx][yyy].windx/128.0;
             if (xxx2 < 0 || xxx2 > width) xxx2 = xxx;
-            int yyy2 = yyy + UPDATE_TEMPERATURE_CONVECTION_MAXDISTANCE*cells[yyy][yyy].windy/128.0;
+            int yyy2 = yyy + WEATHER_TEMPERATURE_CONVECTION_MAXDISTANCE*cells[yyy][yyy].windy/128.0;
             if (yyy2 < 0 || yyy2 > height) yyy2 = yyy;
             cells[xxx][yyy].temperature = oldTemperature[xxx2][yyy2];
-
-            // Conduction
-            unsigned int neighbourSum = 0;
-            for (auto neighbour : getNeighbours(&cells[xxx][yyy] , UPDATE_TEMPERATURE_CONDUCTION_AREA)) neighbourSum+=neighbour->temperature;
-            cells[xxx][yyy].temperature = neighbourSum/getNeighbours(&cells[xxx][yyy] , UPDATE_TEMPERATURE_CONDUCTION_AREA).size;
-
-            // Sunlight
-            cells[xxx][yyy].temperature += UPDATE_TEMPERATURE_SUNLIGHT_MULTIPLIER
-                                         * cosDecay(cells[xxx][yyy].coverage/255.0 , UPDATE_TEMPERATURE_SUNLIGHT_COVERAGE_POWER) 
-                                         * cosCurve(cells[xxx][yyy].y/float(height)-0.5 , UPDATE_TEMPERATURE_SUNLIGHT_LATITUDE_POWER);
-            
-            // Rain
-            cells[xxx][yyy].temperature -= cells[xxx][yyy].temperature * UPDATE_TEMPERATURE_RAIN_MULTIPLIER * cells[xxx][yyy].rain/128.0;
+            xxx2 = xxx + WEATHER_HUMIDITY_CONVECTION_MAXDISTANCE*cells[xxx][yyy].windx/128.0;
+            if (xxx2 < 0 || xxx2 > width) xxx2 = xxx;
+            yyy2 = yyy + WEATHER_HUMIDITY_CONVECTION_MAXDISTANCE*cells[yyy][yyy].windy/128.0;
+            if (yyy2 < 0 || yyy2 > height) yyy2 = yyy;
+            cells[xxx][yyy].humidity = oldHumidity[xxx2][yyy2];
         }
     }
 }
 
-void Map::updateHumidity() {
-
+void Map::weatherSunlight() {
+    for (unsigned short xxx = 0; xxx < width; xxx++) {
+        for (unsigned short yyy = 0; yyy < height; yyy++) {
+            cells[xxx][yyy].temperature += WEATHER_TEMPERATURE_SUNLIGHT_MULTIPLIER
+                                         * cosDecay(cells[xxx][yyy].cloud/255.0 , WEATHER_TEMPERATURE_SUNLIGHT_CLOUD_POWER) 
+                                         * cosCurve(cells[xxx][yyy].y/float(height)-0.5 , WEATHER_TEMPERATURE_SUNLIGHT_LATITUDE_POWER);
+        }
+    }
 }
 
-void Map::updateWind() {
-
+void Map::weatherEvaporation() {
+    for (unsigned short xxx = 0; xxx < width; xxx++) {
+        for (unsigned short yyy = 0; yyy < height; yyy++) {
+            if (cells[xxx][yyy].temperature>0) {
+                if (cells[xxx][yyy].height<0)
+                    cells[xxx][yyy].humidity += WEATHER_HUMIDITY_EVAPORATION_WATER_MULTIPLIER*cells[xxx][yyy].temperature;
+                else cells[xxx][yyy].humidity -= WEATHER_HUMIDITY_EVAPORATION_LAND_MULTIPLIER*cells[xxx][yyy].temperature;
+                // TODO : temperature decreases with evaporation
+            }
+        }
+    }
 }
 
-void Map::updateCoverage() {
-
+void Map::weatherRain() {
+    for (unsigned short xxx = 0; xxx < width; xxx++) {
+        for (unsigned short yyy = 0; yyy < height; yyy++) {
+            cells[xxx][yyy].temperature -= cells[xxx][yyy].temperature * WEATHER_TEMPERATURE_RAIN_MULTIPLIER * cells[xxx][yyy].rain/255.0;
+            cells[xxx][yyy].humidity += WEATHER_HUMIDITY_RAIN_MULTIPLIER * cells[xxx][yyy].rain/255.0;
+            cells[xxx][yyy].cloud -= WEATHER_CLOUD_RAIN_MULTIPLIER * cells[xxx][yyy].rain/255.0;
+            if (cells[xxx][yyy].cloud>WEATHER_RAIN_CLOUD_MINIMUM) cells[xxx][yyy].rain = cells[xxx][yyy].cloud - cells[xxx][yyy].temperature;
+        }
+    }
 }
 
-void Map::updateRain() {
+void Map::weatherCloud() {
+    for (unsigned short xxx = 0; xxx < width; xxx++) {
+        for (unsigned short yyy = 0; yyy < height; yyy++) {
+            if (cells[xxx][yyy].humidity>WEATHER_CLOUD_FORMATION_HUMIDITY_MINIMUM && cells[xxx][yyy].humidity>WEATHER_CLOUD_FORMATION_TEMPERATURE_MINIMUM)
+                cells[xxx][yyy].cloud += 5; // TODO : put a real formula here...
+        }
+    }
+}
 
+void Map::weatherWind() {
+    for (unsigned short xxx = 0; xxx < width; xxx++) {
+        for (unsigned short yyy = 0; yyy < height; yyy++) {
+        }
+    }
 }

@@ -62,9 +62,11 @@ private:
     void mapmodeDistanceToCoast();
     void mapmodeContinentSize();
 
-    void updateTemperature();
-    void updateHumidity();
-    void updateWind();
-    void updateCoverage();
-    void updateRain();
+    void weatherConduction();
+    void weatherConvection();
+    void weatherSunlight();
+    void weatherEvaporation();
+    void weatherRain();
+    void weatherCloud();
+    void weatherWind();
 };
