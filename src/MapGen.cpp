@@ -1,5 +1,7 @@
 #include "Map.hpp"
 
+#include "Utils.hpp"
+
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
@@ -231,19 +233,23 @@ void Map::spreadRiver(unsigned short x, unsigned short y, short inertia_x, short
 
 
 void Map::genTemperature() {
-    for (unsigned short xxx = 0; xxx < width; xxx++) {
-        for (unsigned short yyy = 0; yyy < height; yyy++) {
-            if (cells[xxx][yyy].height>=0) cells[xxx][yyy].temperature = 10;
-            else cells[xxx][yyy].temperature = 20;
+    float t_cosCurve;
+    for (unsigned short yyy = 0; yyy < height; yyy++) {
+        t_cosCurve = 0.5*cosCurve(2*yyy/float(height-2)-1.0 , 3)
+                    +0.5*cosCurve(4*(yyy/float(height-2)-0.5) , 0.4);
+        for (unsigned short xxx = 0; xxx < width; xxx++) {
+            cells[xxx][yyy].temperature = t_cosCurve*240-120;
         }
     }
 }
 
 void Map::genHumidity() {
-    for (unsigned short xxx = 0; xxx < width; xxx++) {
-        for (unsigned short yyy = 0; yyy < height; yyy++) {
-            if (cells[xxx][yyy].height>=0) cells[xxx][yyy].humidity = 30;
-            else cells[xxx][yyy].humidity = 30;
+    float t_cosCurve;
+    for (unsigned short yyy = 0; yyy < height; yyy++) {
+        t_cosCurve = cosCurve(2*yyy/float(height-2)-1.0 , 0.6);
+        for (unsigned short xxx = 0; xxx < width; xxx++) {
+            if (cells[xxx][yyy].height>=0) cells[xxx][yyy].humidity = 30*(1-pow(t_cosCurve,2)) + 2*fmax(0,10-cells[xxx][yyy].distanceToCoast);
+            else cells[xxx][yyy].humidity = 30+t_cosCurve*70;
         }
     }
 }

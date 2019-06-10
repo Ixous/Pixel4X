@@ -42,7 +42,7 @@ void Map::mapmodeHumidity() {
             auto humidity = cells[xxx][yyy].humidity;
             sf::Uint8 greyWater{cells[xxx][yyy].height >= 0 ? (sf::Uint8)0 : (sf::Uint8)20};
             if (humidity<20) {
-                mapimage.setPixel(xxx, yyy, sf::Color{200-greyWater,200-20+humidity-greyWater,200-20+humidity-greyWater,255});
+                mapimage.setPixel(xxx, yyy, sf::Color{200-greyWater,200-2*(20-humidity-greyWater),200-2*(20-humidity-greyWater),255});
             } else {
                 mapimage.setPixel(xxx, yyy, sf::Color{200+20-humidity-greyWater,200+20-humidity-greyWater,200-greyWater,255});
             }

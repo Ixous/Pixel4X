@@ -30,8 +30,10 @@ SimplexNoise snoise_weather{.0025f,1.0f,2.2f,0.5f};
 #define WEATHER_HUMIDITY_EVAPORATION_SEA_STABILITY_RATE 0.5
 #define WEATHER_HUMIDITY_EVAPORATION_SEA_TEMPERATURE_MINIMUM -20.0
 #define WEATHER_HUMIDITY_EVAPORATION_SEA_RATE 0.1
-#define WEATHER_HUMIDITY_EVAPORATION_LAND_TEMPERATURE_MINIMUM 12.0
-#define WEATHER_HUMIDITY_EVAPORATION_LAND_RATE 0.8
+#define WEATHER_HUMIDITY_EVAPORATION_LAND_STABILITY_HUMIDITY 25
+#define WEATHER_HUMIDITY_EVAPORATION_LAND_STABILITY_TEMPERATURE_MINIMUM 14.0
+#define WEATHER_HUMIDITY_EVAPORATION_LAND_STABILITY_TEMPERATURE_POWER 1.0
+#define WEATHER_HUMIDITY_EVAPORATION_LAND_STABILITY_RATE 0.4
 #define WEATHER_HUMIDITY_RAIN_MULTIPLIER 0.4
 
 #define WEATHER_CLOUD_CONVECTION_MAXDISTANCE 5
@@ -154,18 +156,6 @@ void Map::weatherSunlight() {
             cells[xxx][yyy].temperature = fmin(cells[xxx][yyy].temperature,(char)(cells[xxx][yyy].temperature-WEATHER_TEMPERATURE_SUNLIGHT_RADIATION_MULTIPLIER * cosDecay(0.5-(cells[xxx][yyy].temperature/255) , WEATHER_TEMPERATURE_SUNLIGHT_RADIATION_POWER)));
         }
     }
-    // std::cout << "cosCurve" << std::endl;
-    // for (unsigned short yyy = 0; yyy < height/10; yyy++) {
-    //     std::cout << 1.6*(cosCurve((yyy*10)/float(height-2)-0.5 , WEATHER_TEMPERATURE_SUNLIGHT_LATITUDE_POWER)-0.4) << std::endl;
-    // }
-    // std::cout << "cosDecayCloud" << std::endl;
-    // for (unsigned short yyy = 0; yyy < height/10; yyy++) {
-    //     std::cout << cosDecay(cells[400][(yyy*10)].cloud/255.0, WEATHER_TEMPERATURE_SUNLIGHT_CLOUD_POWER) << std::endl;
-    // }
-    // std::cout << "cosDecayTemperature" << std::endl;
-    // for (unsigned short yyy = 0; yyy < height/10; yyy++) {
-    //     std::cout << cosDecay(cells[400][(yyy*10)].temperature/128.0, WEATHER_TEMPERATURE_SUNLIGHT_TEMPERATURE_POWER) << std::endl;
-    // }
 }
 
 void Map::weatherEvaporation() {
@@ -176,8 +166,11 @@ void Map::weatherEvaporation() {
                 if (cells[xxx][yyy].temperature>WEATHER_HUMIDITY_EVAPORATION_SEA_TEMPERATURE_MINIMUM)
                     cells[xxx][yyy].humidity += WEATHER_HUMIDITY_EVAPORATION_SEA_RATE*(100-cells[xxx][yyy].humidity)*((cells[xxx][yyy].temperature-WEATHER_HUMIDITY_EVAPORATION_SEA_TEMPERATURE_MINIMUM)/(127.0-WEATHER_HUMIDITY_EVAPORATION_SEA_TEMPERATURE_MINIMUM));
             } else {
-                if (cells[xxx][yyy].temperature>WEATHER_HUMIDITY_EVAPORATION_LAND_TEMPERATURE_MINIMUM)
-                    cells[xxx][yyy].humidity -= WEATHER_HUMIDITY_EVAPORATION_LAND_RATE*(cells[xxx][yyy].humidity)*((cells[xxx][yyy].temperature-WEATHER_HUMIDITY_EVAPORATION_LAND_TEMPERATURE_MINIMUM)/(127.0-WEATHER_HUMIDITY_EVAPORATION_LAND_TEMPERATURE_MINIMUM));
+                float stabilityPoint = WEATHER_HUMIDITY_EVAPORATION_LAND_STABILITY_HUMIDITY;
+                if (cells[xxx][yyy].temperature > WEATHER_HUMIDITY_EVAPORATION_LAND_STABILITY_TEMPERATURE_MINIMUM)
+                    stabilityPoint *= cosDecay((cells[xxx][yyy].temperature-WEATHER_HUMIDITY_EVAPORATION_LAND_STABILITY_TEMPERATURE_MINIMUM)/(128.0-WEATHER_HUMIDITY_EVAPORATION_LAND_STABILITY_TEMPERATURE_MINIMUM),WEATHER_HUMIDITY_EVAPORATION_LAND_STABILITY_TEMPERATURE_POWER);
+                if (cells[xxx][yyy].humidity>stabilityPoint)
+                    cells[xxx][yyy].humidity -= WEATHER_HUMIDITY_EVAPORATION_LAND_STABILITY_RATE*(cells[xxx][yyy].humidity-stabilityPoint);
             }
         }
     }
@@ -207,8 +200,8 @@ void Map::weatherWind() {
     static float time;
     for (unsigned short xxx = 0; xxx < width; xxx++) {
         for (unsigned short yyy = 0; yyy < height; yyy++) {
-            cells[xxx][yyy].windx = 127.0*(snoise_weather.fractal(3, int(xxx+time)%1000000,yyy) + snoise_weather.fractal(3, int(1000+xxx-time)%1000000,1000+yyy))/2.0;
-            cells[xxx][yyy].windy = 127.0*(snoise_weather.fractal(3, 1000+xxx,int(yyy-time)%1000000) + snoise_weather.fractal(3, xxx,int(1000+yyy+time)%1000000))/2.0;
+            cells[xxx][yyy].windx = (127.0*(0.2+0.8*cosDecay(cells[xxx][yyy].height/128.0,4)))*(snoise_weather.fractal(2, int(xxx+time)%1000000,yyy) + snoise_weather.fractal(2, int(1000+xxx-time)%1000000,1000+yyy))/2.0;
+            cells[xxx][yyy].windy = (127.0*(0.2+0.8*cosDecay(cells[xxx][yyy].height/128.0,4)))*(snoise_weather.fractal(2, 1000+xxx,int(yyy-time)%1000000) + snoise_weather.fractal(2, xxx,int(1000+yyy+time)%1000000))/2.0;
         }
     }
     time+=8;

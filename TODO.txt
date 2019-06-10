@@ -1,0 +1,4 @@
+TODO : 
+passer la température à un système de point de stabilité comme l'humidity
+ajouter les nuages et pluies
+passer les vents en bandes de directions avec une variation de haute fréquence
