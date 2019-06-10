@@ -19,7 +19,6 @@ class Game {
 public:
     Game();
     ~Game();
-    Game* game;
 
     void init();
     void gameloop();

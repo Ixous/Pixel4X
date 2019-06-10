@@ -6,7 +6,7 @@
 #include <SFML/Window.hpp>
 
 Game::Game() :
-game(this) , window (sf::VideoMode(2048, 1024+512), "Pixel4X") , mapview(sf::FloatRect(0,0,1024,512+256)), map(1024,512+256, 1)
+window (sf::VideoMode(2048, 1024+512), "Pixel4X") , mapview(sf::FloatRect(0,0,1024,512+256)), map(1024,512+256, 1)
 {
     keypressed_Alt = false;
 }
@@ -51,6 +51,9 @@ void Game::handleKeypress(sf::Keyboard::Key key, bool pressed) {
         switch (key) {
         case sf::Keyboard::Key::Enter:
             tick();
+            break;
+        case sf::Keyboard::Key::P:
+            map.debug_probetemp();
             break;
         case sf::Keyboard::Key::LAlt:
             keypressed_Alt = pressed;

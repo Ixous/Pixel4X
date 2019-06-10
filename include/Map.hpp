@@ -15,7 +15,7 @@ class Map {
 public:
     Map(unsigned short _width, unsigned short _height, int _seed);
     ~Map();
-    Map* map;
+    static Map* map;
 
     unsigned short getHeight() {return height;}
     unsigned short getWidth() {return width;}
@@ -29,6 +29,9 @@ public:
     bool isValid(int,int);
     std::vector<Cell*> getNeighbours(Cell*, unsigned int distance, bool square);
     std::vector<Cell*> getFertileLands();
+
+    
+    void debug_probetemp();
 private:
     unsigned short height, width;
     int seed;

@@ -231,32 +231,10 @@ void Map::spreadRiver(unsigned short x, unsigned short y, short inertia_x, short
 
 
 void Map::genTemperature() {
-    unsigned short t_halfHeight = height/2;
     for (unsigned short xxx = 0; xxx < width; xxx++) {
         for (unsigned short yyy = 0; yyy < height; yyy++) {
-            float noisex = xxx + width*(seed%width);
-            float noisey = yyy + width*int(seed/width);
-            float noiseMap = 1.5*snoise.fractal(5, noisex,noisey);
-            if (yyy <= t_halfHeight) { //northern hemisphere
-                cells[xxx][yyy].temperature = -20 + 30*(0.5 + 2.0f*atan((yyy-0.1f*height)/45.0f)/PI) + 15*(0.5 + 2.0f*atan((yyy-0.39f*height)/45.0f)/PI) + 10*noiseMap; //each arctan function create a jump (one between the poles and the temperate zone and one between the temperate zone and the hot ring)
-            }
-            else { //southern hemisphere
-                cells[xxx][yyy].temperature = -20 + 30*(0.5 + 2.0f*atan((height-yyy-0.1f*height)/45.0f)/PI) + 15*(0.5 + 2.0f*atan((height-yyy-0.39f*height)/45.0f)/PI) + 10*noiseMap;
-            }
-        }
-    }
-    // now blur the line between the two sides //can be optimized... //TODO : make it linear maybe
-    float t_mapWidth = width;
-    for (unsigned short yyy = 0; yyy < height; yyy++) {
-        // first the left side, first 5%
-        for (unsigned short xxx = 0; xxx < t_mapWidth*0.05; xxx++) {
-            cells[xxx][yyy].temperature = cells[xxx][yyy].temperature * (0.5+xxx/(t_mapWidth*0.1))
-                                           + cells[width -1 - xxx][yyy].temperature * (0.5-xxx/(t_mapWidth*0.1));
-        }
-        // then the right side, last 5%
-        for (unsigned short xxx = t_mapWidth*0.95; xxx < width; xxx++) {
-            cells[xxx][yyy].temperature = cells[xxx][yyy].temperature * (1-(xxx-t_mapWidth*0.95)/(t_mapWidth*0.1))
-                                           + cells[width -1 - xxx][yyy].temperature * (xxx-t_mapWidth*0.95)/(t_mapWidth*0.1);
+            if (cells[xxx][yyy].height>=0) cells[xxx][yyy].temperature = 10;
+            else cells[xxx][yyy].temperature = 20;
         }
     }
 }
@@ -264,8 +242,8 @@ void Map::genTemperature() {
 void Map::genHumidity() {
     for (unsigned short xxx = 0; xxx < width; xxx++) {
         for (unsigned short yyy = 0; yyy < height; yyy++) {
-            if (cells[xxx][yyy].height>=0) cells[xxx][yyy].humidity = 50;
-            else cells[xxx][yyy].humidity = 100;
+            if (cells[xxx][yyy].height>=0) cells[xxx][yyy].humidity = 30;
+            else cells[xxx][yyy].humidity = 30;
         }
     }
 }

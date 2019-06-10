@@ -13,5 +13,5 @@ float cosDecay(float x, float p) {
 
 float cosCurve(float x, float p) {
     if (x<=-1 || x>=1) return 0.0;
-    return cos(pow(fabs(x),p)*PI/2.0)/2.0 +0.5;
+    return cos(pow(fabs(x),p)*PI/2.0);
 }

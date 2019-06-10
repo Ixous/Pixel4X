@@ -1,9 +1,11 @@
 #include "Map.hpp"
 
+#include "Game.hpp"
+
 #include <iostream>
 
 Map::Map(unsigned short _width, unsigned short _height, int _seed) :
-map(this) , height(_height) , width(_width) , seed(_seed)  , cells(_width,std::vector<Cell>(_height))
+height(_height) , width(_width) , seed(_seed)  , cells(_width,std::vector<Cell>(_height))
 {
     for (size_t xxx = 0; xxx < width; xxx++) {
         for (size_t yyy = 0; yyy < height; yyy++) {
@@ -25,18 +27,21 @@ void Map::generate() {
     genRivers();
     genTemperature();
     genHumidity();
+    genWind();
+    genCloud();
+    genRain();
     genFertility();
 }
 
 void Map::update() {
     std::cout << "weatherConduction" << std::endl;
-    // weatherConduction();
+    weatherConduction();
     std::cout << "weatherConvection" << std::endl;
-    // weatherConvection();
+    weatherConvection();
     std::cout << "weatherSunlight" << std::endl;
     weatherSunlight();
     std::cout << "weatherEvaporation" << std::endl;
-    // weatherEvaporation();
+    weatherEvaporation();
     std::cout << "weatherRain" << std::endl;
     // weatherRain();
     std::cout << "weatherCloud" << std::endl;

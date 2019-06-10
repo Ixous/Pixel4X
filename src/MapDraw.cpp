@@ -25,13 +25,12 @@ void Map::mapmodeTemperature() {
         for (size_t yyy = 0; yyy < height; yyy++) {
             auto temperature = cells[xxx][yyy].temperature;
             sf::Uint8 greyWater{cells[xxx][yyy].height >= 0 ? (sf::Uint8)0 : (sf::Uint8)20};
-            if (temperature >= 15) {
-                sf::Uint8 tempColor = (sf::Uint8)(200-2*(temperature-15)) - greyWater;
-                mapimage.setPixel(xxx, yyy, sf::Color{(sf::Uint8)(200-greyWater),tempColor,tempColor,255}); //can overflow if temperature is too low or too high
+            sf::Uint8 tempColor = (sf::Uint8)(200-0.5*(fabs(temperature))) - greyWater;
+            if (temperature >= 0) {
+                mapimage.setPixel(xxx, yyy, sf::Color{(sf::Uint8)(200-greyWater),tempColor,tempColor,255});
             }
             else {
-                sf::Uint8 tempColor = (sf::Uint8)(200+2*(temperature-15)) - greyWater;
-                mapimage.setPixel(xxx, yyy, sf::Color{tempColor,tempColor,(sf::Uint8)(200-greyWater),255}); //can overflow if temperature is too low or too high
+                mapimage.setPixel(xxx, yyy, sf::Color{tempColor,tempColor,(sf::Uint8)(200-greyWater),255});
             }
         }
     }
@@ -42,13 +41,10 @@ void Map::mapmodeHumidity() {
         for (size_t yyy = 0; yyy < height; yyy++) {
             auto humidity = cells[xxx][yyy].humidity;
             sf::Uint8 greyWater{cells[xxx][yyy].height >= 0 ? (sf::Uint8)0 : (sf::Uint8)20};
-            if (humidity >= 15) {
-                sf::Uint8 tempColor = (sf::Uint8)(200 - 2*(humidity-40)) - greyWater;
-                mapimage.setPixel(xxx, yyy, sf::Color{tempColor,tempColor,(sf::Uint8)(200-greyWater),255});
-            }
-            else {
-                sf::Uint8 tempColor = (sf::Uint8)(200 + 3*(humidity-40)) - greyWater;
-                mapimage.setPixel(xxx, yyy, sf::Color{(sf::Uint8)(200-greyWater),tempColor,tempColor,255});
+            if (humidity<20) {
+                mapimage.setPixel(xxx, yyy, sf::Color{200-greyWater,200-20+humidity-greyWater,200-20+humidity-greyWater,255});
+            } else {
+                mapimage.setPixel(xxx, yyy, sf::Color{200+20-humidity-greyWater,200+20-humidity-greyWater,200-greyWater,255});
             }
         }
     }
@@ -58,7 +54,7 @@ void Map::mapmodeWind() {
     for (size_t xxx = 0; xxx < width; xxx++) {
         for (size_t yyy = 0; yyy < height; yyy++) {
             // auto windforce = sqrt(pow(cells[xxx][yyy].windx,2)+pow(cells[xxx][yyy].windy,2)); //TODO : make it work.....
-            mapimage.setPixel(xxx, yyy, sf::Color{(sf::Uint8)(128+cells[xxx][yyy].windx),200,(sf::Uint8)(128+cells[xxx][yyy].windy),255});
+            mapimage.setPixel(xxx, yyy, sf::Color{(sf::Uint8)(128+cells[xxx][yyy].windx),128,(sf::Uint8)(128+cells[xxx][yyy].windy),255});
         }
     }
 }
@@ -67,9 +63,7 @@ void Map::mapmodeCloud() {
     for (size_t xxx = 0; xxx < width; xxx++) {
         for (size_t yyy = 0; yyy < height; yyy++) {
             auto cloud = cells[xxx][yyy].cloud;
-            sf::Uint8 greyWater{cells[xxx][yyy].height >= 0 ? (sf::Uint8)0 : (sf::Uint8)0};
-            sf::Uint8 tempColor = (sf::Uint8)((cloud)) - greyWater;
-            mapimage.setPixel(xxx, yyy, sf::Color{(sf::Uint8)(200-greyWater),(sf::Uint8)(200-greyWater),tempColor,255});
+            mapimage.setPixel(xxx, yyy, sf::Color{200-cloud,200-cloud,200-cloud,255});
         }
     }
 }
@@ -78,9 +72,7 @@ void Map::mapmodeRain() {
     for (size_t xxx = 0; xxx < width; xxx++) {
         for (size_t yyy = 0; yyy < height; yyy++) {
             auto rain = cells[xxx][yyy].rain;
-            sf::Uint8 greyWater{cells[xxx][yyy].height >= 0 ? (sf::Uint8)0 : (sf::Uint8)0};
-            sf::Uint8 tempColor = (sf::Uint8)((rain)) - greyWater;
-            mapimage.setPixel(xxx, yyy, sf::Color{(sf::Uint8)(200-greyWater),(sf::Uint8)(200-greyWater),tempColor,255});
+            mapimage.setPixel(xxx, yyy, sf::Color{200-rain,200-rain,200,255});
         }
     }
 }
