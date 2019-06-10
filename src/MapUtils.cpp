@@ -21,9 +21,11 @@ std::vector<Cell*> Map::getFertileLands() {
     std::vector<Cell*> fertileLands;
     for (uint16_t xxx = 0; xxx < width; xxx++) {
         for (uint16_t yyy = 0; yyy < height; yyy++) {
-            if (cells[xxx][yyy].fertility>80) {
-                fertileLands.push_back(&cells[xxx][yyy]);
-            }
+            auto distanceFromEquator = fabs(yyy-height/2);
+            if (distanceFromEquator<height*0.2 && cells[xxx][yyy].distanceToCoast<5) fertileLands.push_back(&cells[xxx][yyy]);
+            else if (distanceFromEquator>height*0.2 && distanceFromEquator<height*0.3 && cells[xxx][yyy].distanceToCoast<10) fertileLands.push_back(&cells[xxx][yyy]);
+            else if (distanceFromEquator>height*0.3 && distanceFromEquator<height*0.4 && cells[xxx][yyy].distanceToCoast<25) fertileLands.push_back(&cells[xxx][yyy]);
+            else if (distanceFromEquator>height*0.4 && distanceFromEquator<height*0.45 && cells[xxx][yyy].distanceToCoast<15) fertileLands.push_back(&cells[xxx][yyy]);
         }
     }
     return fertileLands;
