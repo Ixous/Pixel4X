@@ -1,0 +1,14 @@
+// {type:deployment}
+// {generate:true}
+
+[Pixel4X]-[Map]
+[Pixel4X]-[Game]
+
+[Map]-[Noise;generation]
+[Noise;generation]-[note:TODO : plate tectonics]
+[Map]-[Weather]
+
+[Game]-[Population;dynamics]
+[Game]-[Armies;and;navies]
+[Game]-[Diplomacy]
+[Game]-[Economy]
